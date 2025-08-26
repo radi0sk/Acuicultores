@@ -1,89 +1,119 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // --- UTILITY FUNCTIONS ---
     function isUserAuthenticated() {
       return request.auth != null;
     }
 
-    function isOwner(resource) {
-      return request.auth.uid == resource.data.authorId || request.auth.uid == resource.data.sellerId || request.auth.uid == resource.data.contributorId;
-    }
-    
-    function isParticipant() {
-      return request.auth.uid in resource.data.participantIds;
+    function isOwner(userId) {
+      return request.auth.uid == userId;
     }
 
+    function isCreatingOwnDocument() {
+      return isOwner(request.resource.data.userId);
+    }
+    
+    function isUpdatingAllowedLikes() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likesCount', 'likedBy']);
+    }
+
+    function isUpdatingAllowedPoll() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['poll']);
+    }
+
+
+    // --- USERS ---
     match /users/{userId} {
-      allow read;
-      allow write: if request.auth.uid == userId;
-      
-      match /professionalProfile/{profileId} {
-        allow read;
-        allow write: if request.auth.uid == userId;
+      allow read: if true;
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
+
+      // --- PROFESSIONAL PROFILE (SUBCOLLECTION) ---
+      match /professionalProfile/data {
+        allow read: if true;
+        allow create, update: if isOwner(userId);
       }
     }
     
-    match /libraryContributions/{contributionId} {
-        allow read;
-        allow create: if isUserAuthenticated();
-        allow update, delete: if isOwner(resource) || resource.data.status == 'pending'; // Admin can change status
-    }
 
-    match /products/{productId} {
-      allow read;
-      allow create: if isUserAuthenticated();
-      allow update: if isOwner(resource) || (isUserAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['saveCount', 'savedBy', 'viewCount']));
-      allow delete: if isOwner(resource);
-    }
-    
+    // --- FORUM POSTS ---
     match /forumPosts/{postId} {
-      allow read;
-      allow create: if isUserAuthenticated();
-      allow update: if (isOwner(resource)) || 
-                       (isUserAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likesCount', 'likedBy'])) ||
-                       (isUserAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['poll']));
-      allow delete: if isOwner(resource);
+      allow read: if true;
+      allow create: if isOwner(request.resource.data.authorId);
+      allow update: if (isOwner(resource.data.authorId)) || isUpdatingAllowedLikes() || isUpdatingAllowedPoll();
 
+      // --- COMMENTS (SUBCOLLECTION) ---
       match /comments/{commentId} {
-        allow read, write: if isUserAuthenticated();
+        allow read: if true;
+        allow create: if isUserAuthenticated();
+        allow update: if isOwner(resource.data.authorId);
       }
     }
-    
+
+
+    // --- PUBLICATIONS ---
     match /publications/{publicationId} {
-      allow read;
-      allow create: if isUserAuthenticated();
-      allow update: if isOwner(resource) || (isUserAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes', 'likedBy']));
-      allow delete: if isOwner(resource);
-
-      match /comments/{commentId} {
-        allow read, write: if isUserAuthenticated();
-      }
-    }
-
-    match /publicationSuggestions/{suggestionId} {
-        allow read, create: if isUserAuthenticated();
-        allow update: if request.auth.uid == resource.data.publicationAuthorId || request.auth.uid == resource.data.suggesterId;
-    }
-    
-    match /notifications/{notificationId} {
-      allow read, update, delete: if request.auth.uid == resource.data.userId;
-      allow create: if isUserAuthenticated();
-    }
-    
-    match /conversations/{conversationId} {
-      allow read, update: if isParticipant();
-      allow create: if isUserAuthenticated() && request.auth.uid in request.resource.data.participantIds;
+      allow read: if true;
+      allow create: if isOwner(request.resource.data.authorId);
+      allow update: if isOwner(resource.data.authorId) || isUpdatingAllowedLikes();
       
-      match /messages/{messageId} {
-        allow read, create: if get(/databases/$(database)/documents/conversations/$(conversationId)).data.participantIds.hasAny([request.auth.uid]);
+      // --- COMMENTS (SUBCOLLECTION) ---
+      match /comments/{commentId} {
+        allow read: if true;
+        allow create: if isUserAuthenticated();
+        allow update: if isOwner(resource.data.authorId);
       }
     }
     
-    match /{path=**}/professionalProfile/{profileId} {
-      allow read;
+    // --- PUBLICATION SUGGESTIONS ---
+    match /publicationSuggestions/{suggestionId} {
+        allow read, update: if isUserAuthenticated() && (isOwner(resource.data.publicationAuthorId) || isOwner(resource.data.suggesterId));
+        allow create: if isUserAuthenticated() && isOwner(request.resource.data.suggesterId);
+    }
+    
+
+    // --- PRODUCTS ---
+    match /products/{productId} {
+      allow read: if true;
+      allow create: if isOwner(request.resource.data.sellerId);
+      // Allow owner to update. Allow any authenticated user to update ONLY viewCount or save fields.
+      allow update: if isOwner(resource.data.sellerId) || 
+                      (isUserAuthenticated() && (
+                          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['viewCount']) ||
+                          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['saveCount', 'savedBy'])
+                      ));
+      allow delete: if isOwner(resource.data.sellerId);
+    }
+    
+
+    // --- LIBRARY CONTRIBUTIONS ---
+    match /libraryContributions/{contributionId} {
+        allow read: if true;
+        allow create: if isOwner(request.resource.data.contributorId);
+        // Only admin can approve/reject
+        allow update: if request.auth.uid == 'ovPIwCma4pcnWk9RnCF4GQEhfJm2';
+    }
+
+
+    // --- NOTIFICATIONS ---
+    match /notifications/{notificationId} {
+        allow read, update: if isUserAuthenticated() && isOwner(resource.data.userId);
+        allow create: if isUserAuthenticated();
+    }
+    
+
+    // --- CONVERSATIONS AND MESSAGES ---
+    match /conversations/{conversationId} {
+      allow list: if isUserAuthenticated() && request.auth.uid in request.query.where.value;
+      allow get, update: if isUserAuthenticated() && request.auth.uid in resource.data.participantIds;
+      allow create: if isUserAuthenticated() && request.auth.uid in request.resource.data.participantIds;
+
+      match /messages/{messageId} {
+        allow read, create: if isUserAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participantIds;
+      }
     }
   }
 }
