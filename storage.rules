@@ -1,0 +1,40 @@
+rules_version = '2';
+
+// Declarar el servicio y las funciones de ayuda primero
+function isNotAuthor(publicationId) {
+  // Comprueba que el usuario que realiza la solicitud no es el autor de la publicación original.
+  // Esto previene que los autores se envíen propuestas a sí mismos.
+  let publicationAuthorId = get(/databases/$(database)/documents/publications/$(publicationId)).data.authorId;
+  return request.auth.uid != publicationAuthorId;
+}
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Regla 1: Permitir que los usuarios autenticados creen sugerencias
+    // si no son los autores de la publicación original.
+    match /suggestions/{publicationId}/{allPaths=**} {
+      allow write: if request.auth != null && isNotAuthor(publicationId);
+    }
+
+    // Regla 2: Permitir a los usuarios leer/escribir en su propia carpeta de publicaciones.
+    // Esto cubre las imágenes que añaden al crear un artículo.
+    match /publications/{userId}/{allPaths=**} {
+      allow read;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Regla 3: Permitir a los usuarios leer/escribir en su propia carpeta de productos.
+    match /products/{userId}/{allPaths=**} {
+      allow read;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Regla 4: Regla de denegación por defecto para todo lo demás.
+    // Esta regla ya no es estrictamente necesaria si las anteriores cubren todos los casos de escritura,
+    // pero es una buena práctica de seguridad mantenerla como última barrera.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
