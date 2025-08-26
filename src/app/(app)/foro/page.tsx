@@ -147,7 +147,7 @@ const CoursePostCard = ({ post, onCommentClick }: { post: Post, onCommentClick: 
     )
 }
 
-const PollComponent = ({ post, onVote }: { post: Post; onVote: () => void }) => {
+const PollComponent = ({ post, onVote }: { post: Post; onVote: (newPollData: Post['poll']) => void }) => {
     const { user } = useAuth();
     const { toast } = useToast();
     const [isVoting, setIsVoting] = useState(false);
@@ -173,6 +173,7 @@ const PollComponent = ({ post, onVote }: { post: Post; onVote: () => void }) => 
         const postRef = doc(clientDb, "forumPosts", post.id);
 
         try {
+            let finalPollData: Post['poll'] | undefined;
             await runTransaction(clientDb, async (transaction) => {
                 console.log("[handleVote] Dentro de la transacción de Firestore.");
                 const postDoc = await transaction.get(postRef);
@@ -198,6 +199,7 @@ const PollComponent = ({ post, onVote }: { post: Post; onVote: () => void }) => 
                     console.log(`[handleVote] El usuario ya había votado por la opción ${previousVoteIndex}. Cambiando voto.`);
                     if (previousVoteIndex === optionIndex) {
                         console.log("[handleVote] El usuario hizo clic en la misma opción de nuevo. No se hace nada.");
+                        setIsVoting(false); // Release lock early
                         return;
                     }
                     newOptions[previousVoteIndex].votes -= 1;
@@ -209,17 +211,22 @@ const PollComponent = ({ post, onVote }: { post: Post; onVote: () => void }) => 
                 newOptions[optionIndex].votes += 1;
                 newVoters[user.uid] = optionIndex;
                 
-                const updateData = {
-                    "poll.options": newOptions,
-                    "poll.voters": newVoters,
-                    "poll.totalVotes": newTotalVotes
+                finalPollData = {
+                    ...postData.poll!,
+                    options: newOptions,
+                    voters: newVoters,
+                    totalVotes: newTotalVotes
                 };
+                
+                const updateData = { "poll": finalPollData };
 
                 console.log("[handleVote] Datos a actualizar:", updateData);
                 transaction.update(postRef, updateData);
             });
             console.log("[handleVote] Transacción completada exitosamente.");
-            onVote(); // Trigger re-render on parent
+            if (finalPollData) {
+                onVote(finalPollData); // Trigger re-render on parent with the new poll data
+            }
         } catch (error) {
             console.error("[handleVote] Error en la transacción de voto:", error);
             toast({ variant: "destructive", title: "Error", description: "No se pudo registrar tu voto." });
@@ -366,17 +373,8 @@ const PostCard = ({ post, onCommentClick, onPostUpdate }: { post: Post, onCommen
                         </div>
                     )}
                 </div>
-                {post.poll && <PollComponent post={post} onVote={() => {
-                    // This is a simplified optimistic update for the UI.
-                    // The transaction in `handleVote` is the source of truth.
-                    if (user) {
-                        const updatedPost = { ...post };
-                        if (!updatedPost.poll!.voters[user.uid]) {
-                            updatedPost.poll!.totalVotes += 1;
-                        }
-                        // This part is just for triggering a re-render.
-                        onPostUpdate(post.id, { poll: updatedPost.poll });
-                    }
+                {post.poll && <PollComponent post={post} onVote={(newPollData) => {
+                    onPostUpdate(post.id, { poll: newPollData });
                 }} />}
             </CardContent>
             <CardFooter className="flex items-center justify-between text-muted-foreground border-t pt-2 pb-2 px-6">
@@ -718,6 +716,10 @@ export default function ForumPage() {
           p.id === postId ? { ...p, ...newPostData } : p
         )
       );
+      // Also update the selected post in the modal if it's open
+      if (selectedPost && selectedPost.id === postId) {
+          setSelectedPost(prev => prev ? { ...prev, ...newPostData } : null);
+      }
     };
   
   return (
@@ -890,12 +892,8 @@ export default function ForumPage() {
                                         )}
                                     </div>
                                 )}
-                                {selectedPost.poll && <PollComponent post={selectedPost} onVote={() => {
-                                    if (user) {
-                                        handlePostUpdate(selectedPost.id, {
-                                           ...selectedPost, // Pass the whole post to trigger re-render
-                                        })
-                                    }
+                                {selectedPost.poll && <PollComponent post={selectedPost} onVote={(newPollData) => {
+                                    handlePostUpdate(selectedPost.id, { poll: newPollData });
                                 }} />}
                             </CardContent>
                         </Card>
@@ -976,5 +974,3 @@ export default function ForumPage() {
     </>
   );
 }
-
-    
