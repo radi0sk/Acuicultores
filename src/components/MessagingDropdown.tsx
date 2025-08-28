@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react";
 import Link from 'next/link';
 import { useAuth } from "@/hooks/useAuth";
-import { collection, query, where, onSnapshot, Timestamp } from "firebase/firestore";
+import { collection, query, where, onSnapshot, Timestamp, orderBy } from "firebase/firestore";
 import { clientDb } from "@/lib/firebase/client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -49,7 +49,8 @@ export default function MessagingDropdown() {
         setLoading(true);
         const q = query(
             collection(clientDb, "conversations"),
-            where("participantIds", "array-contains", user.uid)
+            where("participantIds", "array-contains", user.uid),
+            orderBy("lastUpdatedAt", "desc")
         );
 
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -57,9 +58,6 @@ export default function MessagingDropdown() {
             querySnapshot.forEach((doc) => {
                 allConversations.push({ id: doc.id, ...doc.data() } as Conversation);
             });
-
-            // Sort conversations by last update timestamp on the client
-            allConversations.sort((a, b) => (b.lastUpdatedAt?.toMillis() || 0) - (a.lastUpdatedAt?.toMillis() || 0));
 
             const totalUnreadCount = allConversations.reduce((acc, conv) => {
                 return acc + (conv.unreadCounts?.[user.uid] || 0);
@@ -69,6 +67,9 @@ export default function MessagingDropdown() {
 
             setConversations(recentConversations);
             setTotalUnread(totalUnreadCount);
+            setLoading(false);
+        }, (error) => {
+            console.error("Error fetching conversations for dropdown:", error);
             setLoading(false);
         });
 

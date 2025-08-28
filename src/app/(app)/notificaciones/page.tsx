@@ -62,10 +62,10 @@ export default function NotificationsPage() {
         }
 
         setLoading(true);
-        // Simplified query to avoid complex indexes. Sorting will be handled client-side.
         const q = query(
             collection(clientDb, "notifications"),
-            where("userId", "==", user.uid)
+            where("userId", "==", user.uid),
+            orderBy("createdAt", "desc")
         );
 
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -73,8 +73,6 @@ export default function NotificationsPage() {
             querySnapshot.forEach((doc) => {
                 allNotifications.push({ id: doc.id, ...doc.data() } as Notification);
             });
-            // Sort notifications by creation date on the client
-            allNotifications.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
             setNotifications(allNotifications);
             setLoading(false);
         }, (error) => {

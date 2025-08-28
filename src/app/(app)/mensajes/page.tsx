@@ -214,7 +214,8 @@ export default function MessagesPage() {
         setLoadingConversations(true);
         const q = query(
             collection(clientDb, "conversations"),
-            where("participantIds", "array-contains", user.uid)
+            where("participantIds", "array-contains", user.uid),
+            orderBy("lastUpdatedAt", "desc")
         );
 
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -222,8 +223,6 @@ export default function MessagesPage() {
             querySnapshot.forEach((doc) => {
                 userConversations.push({ id: doc.id, ...doc.data() } as Conversation);
             });
-            // Sort conversations by last update timestamp on the client
-            userConversations.sort((a, b) => (b.lastUpdatedAt?.toMillis() || 0) - (a.lastUpdatedAt?.toMillis() || 0));
             setConversations(userConversations);
             setLoadingConversations(false);
         }, (error) => {
