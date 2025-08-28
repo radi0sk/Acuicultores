@@ -100,26 +100,26 @@ service cloud.firestore {
     // Notifications Collection
     match /notifications/{notificationId} {
       allow get, update: if isOwner(resource.data.userId);
-      allow list: if isUserAuthenticated(); // Query is filtered by userId
+      // Allow list for queries from the client where the userId is filtered
+      allow list: if isUserAuthenticated() && request.query.where.userId == request.auth.uid;
       allow create: if isUserAuthenticated();
     }
     
     // Conversations Collection
     match /conversations/{conversationId} {
-      // Allow reading a specific conversation document if the user is a participant.
+      // Allow a user to get a conversation if they are a participant.
+      // This rule is implicitly used by Firestore to authorize list/query results.
       allow get: if isUserAuthenticated() && request.auth.uid in resource.data.participantIds;
       
-      // Allow listing conversations, but only if the query is filtering by the user's UID using 'array-contains'.
-      allow list: if isUserAuthenticated() && request.query.where.get('participantIds').get('array_contains') == request.auth.uid;
+      // Allow a user to create a conversation if they are a participant in the new document.
+      allow create: if isUserAuthenticated() && request.auth.uid in request.resource.data.participantIds;
 
-      // Allow creating a conversation if the user is authenticated and is one of the participants.
-      allow create: if isUserAuthenticated() && request.auth.uid in request.resource.data.participantIds && request.resource.data.participantIds.size() == 2;
-
-      // Allow updating a conversation (e.g., lastMessage) if the user is a participant.
+      // Allow a user to update a conversation (e.g., lastMessage) if they are a participant.
       allow update: if isUserAuthenticated() && request.auth.uid in resource.data.participantIds;
       
       // Messages Subcollection
       match /messages/{messageId} {
+        // Allow reading and writing messages if the user is part of the parent conversation.
         allow read, create: if isUserAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participantIds;
       }
     }
