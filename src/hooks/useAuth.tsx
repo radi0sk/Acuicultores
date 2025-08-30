@@ -18,6 +18,7 @@ interface UserProfile {
     followingCount?: number;
     followers?: string[];
     following?: string[];
+    profileComplete?: boolean; // Flag to check if onboarding is done
 }
 
 // Expand this to include all fields from the professional profile form
@@ -49,7 +50,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const publicPaths = ['/mercado-profesionales', '/foro', '/biblioteca', '/marketplace', '/publicaciones'];
+const publicPaths = ['/mercado-profesionales', '/foro', '/biblioteca', '/marketplace', '/publicaciones', '/auth/completar-perfil'];
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
@@ -81,13 +82,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                         followingCount: 0,
                         followers: [],
                         following: [],
+                        profileComplete: false, // New users start with an incomplete profile
                     };
                     await setDoc(userDocRef, profileData);
                 }
                 
                 setUser(firebaseUser);
                 setUserProfile(profileData);
-                setActiveProfile(profileData.roles?.[0] || 'Productor');
+                
+                if(profileData.roles && profileData.roles.length > 0) {
+                    setActiveProfile(profileData.roles[0]);
+                }
                 
                 const profProfileRef = doc(clientDb, `users/${firebaseUser.uid}/professionalProfile/data`);
                 const profProfileSnap = await getDoc(profProfileRef);
@@ -97,9 +102,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     setProfessionalProfile(null);
                 }
 
-                if (pathname === '/auth') {
+                // Redirect logic for onboarding
+                if (!profileData.profileComplete) {
+                    if (pathname !== '/auth/completar-perfil') {
+                        router.push('/auth/completar-perfil');
+                    }
+                } else if (pathname === '/auth' || pathname === '/auth/completar-perfil') {
                     router.push('/dashboard');
                 }
+
             } else {
                 setUser(null);
                 setUserProfile(null);
@@ -118,27 +129,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const handleGoogleSignIn = async () => {
         const provider = new GoogleAuthProvider();
         try {
-            const result = await signInWithPopup(clientAuth, provider);
-            const firebaseUser = result.user;
-            
-            const docRef = doc(clientDb, "users", firebaseUser.uid);
-            const docSnap = await getDoc(docRef);
-
-            if (!docSnap.exists()) {
-                const newProfile = {
-                    name: firebaseUser.displayName || 'Nuevo Usuario',
-                    email: firebaseUser.email || '',
-                    photoURL: firebaseUser.photoURL || '',
-                    roles: ['Productor'],
-                    createdAt: serverTimestamp(),
-                    followersCount: 0,
-                    followingCount: 0,
-                    followers: [],
-                    following: [],
-                };
-                await setDoc(docRef, newProfile);
-            }
-            router.push('/dashboard');
+            await signInWithPopup(clientAuth, provider);
+            // The onAuthStateChanged listener will handle the rest
         } catch (error) {
             console.error("Error during Google sign-in:", error);
         }
@@ -146,9 +138,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const handleLogout = async () => {
         await signOut(clientAuth);
-        setUser(null);
-        setUserProfile(null);
-        setProfessionalProfile(null);
         router.push('/auth');
     };
 
