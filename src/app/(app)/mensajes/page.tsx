@@ -107,13 +107,13 @@ const ProductCard = ({ data }: { data: ProductCardData }) => {
 };
 
 
-const ServiceRequestCard = ({ text, onAccept, onReject, onDetails }: { 
+const ServiceRequestCard = ({ text, onAccept, onReject, onDetails, isRecipient }: { 
     text: string; 
     onAccept: (title: string) => void;
     onReject: (title: string) => void;
     onDetails: (request: ServiceRequest, sender: any) => void;
+    isRecipient: boolean;
 }) => {
-    const { user } = useAuth();
     const [senderProfile, setSenderProfile] = useState<any>(null);
 
     const parsedRequest = (() => {
@@ -178,8 +178,12 @@ const ServiceRequestCard = ({ text, onAccept, onReject, onDetails }: {
             </CardHeader>
             <CardContent>
                  <div className="mt-4 flex gap-2 pt-4 border-t">
-                    <Button size="sm" onClick={() => onAccept(parsedRequest.title)}><Check className="h-4 w-4 mr-2"/>Aceptar</Button>
-                    <Button size="sm" variant="destructive" onClick={() => onReject(parsedRequest.title)}><X className="h-4 w-4 mr-2"/>Rechazar</Button>
+                    {isRecipient && (
+                        <>
+                             <Button size="sm" onClick={() => onAccept(parsedRequest.title)}><Check className="h-4 w-4 mr-2"/>Aceptar</Button>
+                             <Button size="sm" variant="destructive" onClick={() => onReject(parsedRequest.title)}><X className="h-4 w-4 mr-2"/>Rechazar</Button>
+                        </>
+                    )}
                     <Button size="sm" variant="outline" onClick={() => onDetails(parsedRequest, senderProfile)}>Ver Detalles</Button>
                 </div>
             </CardContent>
@@ -501,6 +505,7 @@ export default function MessagesPage() {
                                             messages.map((msg) => {
                                                 const productCardData = parseProductCard(msg.text);
                                                 const isServiceRequest = msg.text.startsWith('**Solicitud');
+                                                const isRecipient = msg.senderId !== user?.uid;
                                                 return (
                                                     <div key={msg.id} className={cn(
                                                         "flex w-full max-w-[85%] flex-col gap-1",
@@ -514,6 +519,7 @@ export default function MessagesPage() {
                                                                 onAccept={handleAcceptRequest}
                                                                 onReject={handleRejectRequest}
                                                                 onDetails={handleViewDetails}
+                                                                isRecipient={isRecipient}
                                                             />
                                                          ) : (
                                                             <div className={cn(
