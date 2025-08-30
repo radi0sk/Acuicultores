@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowUpRight, Briefcase, Droplets, Fish, MessagesSquare, BookOpen } from "lucide-react";
+import { ArrowUpRight, Briefcase, Droplets, Fish, MessagesSquare, BookOpen, ShoppingCart } from "lucide-react";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth'; 
@@ -14,13 +14,14 @@ export default function DashboardPage() {
   const [chartData, setChartData] = useState<Array<{month: string, total: number}>>([]);
   
   useEffect(() => {
+    // Simulating dynamic data for platform activity (e.g., new posts, products)
     const data = [
-      { month: "Ene", total: Math.floor(Math.random() * 2000) + 1000 },
-      { month: "Feb", total: Math.floor(Math.random() * 2000) + 1000 },
-      { month: "Mar", total: Math.floor(Math.random() * 2000) + 1000 },
-      { month: "Abr", total: Math.floor(Math.random() * 2000) + 1000 },
-      { month: "May", total: Math.floor(Math.random() * 2000) + 1000 },
-      { month: "Jun", total: Math.floor(Math.random() * 2000) + 1000 },
+      { month: "Ene", total: Math.floor(Math.random() * 50) + 10 },
+      { month: "Feb", total: Math.floor(Math.random() * 50) + 15 },
+      { month: "Mar", total: Math.floor(Math.random() * 50) + 20 },
+      { month: "Abr", total: Math.floor(Math.random() * 50) + 25 },
+      { month: "May", total: Math.floor(Math.random() * 50) + 30 },
+      { month: "Jun", total: Math.floor(Math.random() * 50) + 35 },
     ];
     setChartData(data);
   }, []);
@@ -35,38 +36,38 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <h1 className="font-headline text-3xl font-bold tracking-tight">Panel de Control</h1>
-        <p className="text-muted-foreground font-body">Bienvenido/a {getFirstName()}. Aquí tienes un resumen de tu actividad.</p>
+        <h1 className="font-headline text-3xl font-bold tracking-tight">Inicio</h1>
+        <p className="text-muted-foreground font-body">Bienvenido/a {getFirstName()}. Aquí tienes un resumen de la actividad en la plataforma.</p>
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium font-headline">Producción Total (kg)</CardTitle>
-            <Fish className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium font-headline">Nuevos Productos</CardTitle>
+            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,254 kg</div>
-            <p className="text-xs text-muted-foreground font-body">+15.2% desde el mes pasado</p>
+            <div className="text-2xl font-bold">+12</div>
+            <p className="text-xs text-muted-foreground font-body">en la última semana</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium font-headline">Calidad del Agua</CardTitle>
-            <Droplets className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium font-headline">Consultas en el Foro</CardTitle>
+            <MessagesSquare className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">Óptima</div>
-            <p className="text-xs text-muted-foreground font-body">Última medición: hace 2h</p>
+            <div className="text-2xl font-bold">+25</div>
+            <p className="text-xs text-muted-foreground font-body">+5 nuevas hoy</p>
           </CardContent>
         </Card>
          <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium font-headline">Consultas Abiertas</CardTitle>
-            <MessagesSquare className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium font-headline">Profesionales Activos</CardTitle>
+            <Briefcase className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">3</div>
-            <p className="text-xs text-muted-foreground font-body">1 nueva desde ayer</p>
+            <div className="text-2xl font-bold">42</div>
+            <p className="text-xs text-muted-foreground font-body">+2 nuevos esta semana</p>
           </CardContent>
         </Card>
          <Card>
@@ -84,7 +85,8 @@ export default function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <Card className="col-span-4">
           <CardHeader>
-            <CardTitle className="font-headline">Producción Mensual</CardTitle>
+            <CardTitle className="font-headline">Actividad de la Plataforma</CardTitle>
+             <CardDescription className="font-body">Nuevas publicaciones y productos en los últimos 6 meses.</CardDescription>
           </CardHeader>
           <CardContent className="pl-2">
             <ResponsiveContainer width="100%" height={350}>
@@ -101,7 +103,7 @@ export default function DashboardPage() {
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
-                  tickFormatter={(value) => `${value}kg`}
+                  tickFormatter={(value) => `${value}`}
                 />
                 <Bar dataKey="total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
               </BarChart>

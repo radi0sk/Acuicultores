@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuGroup } from '@/components/ui/dropdown-menu';
-import { LayoutDashboard, Briefcase, MessagesSquare, BookOpen, Newspaper, LogOut, Check, ShoppingCart, Menu, Heart, ThumbsUp, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, Briefcase, MessagesSquare, BookOpen, Newspaper, LogOut, Check, ShoppingCart, Menu, Heart, ThumbsUp, ShieldCheck, Home } from 'lucide-react';
 import React from 'react';
 import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
@@ -48,7 +48,7 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
   const isAdmin = user?.uid === 'ovPIwCma4pcnWk9RnCF4GQEhfJm2';
 
   const navItems = [
-    { href: "/dashboard", icon: LayoutDashboard, label: "Panel de Control" },
+    { href: "/dashboard", icon: Home, label: "Inicio" },
     { href: "/mercado-profesionales", icon: Briefcase, label: "Profesionales" },
     { href: "/marketplace", icon: ShoppingCart, label: "Marketplace" },
     { href: "/foro", icon: MessagesSquare, label: "Foro" },
