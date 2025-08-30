@@ -168,24 +168,20 @@ const PollComponent = ({ post, onVote }: { post: Post; onVote: (newPollData: Pos
     const handleVote = async (optionIndex: number) => {
         if (!user || hasPollEnded || isVoting) return;
 
-        console.log(`[handleVote] Iniciando voto para la opción ${optionIndex}. Usuario: ${user.uid}`);
         setIsVoting(true);
         const postRef = doc(clientDb, "forumPosts", post.id);
 
         try {
             let finalPollData: Post['poll'] | undefined;
             await runTransaction(clientDb, async (transaction) => {
-                console.log("[handleVote] Dentro de la transacción de Firestore.");
                 const postDoc = await transaction.get(postRef);
                 if (!postDoc.exists()) {
-                    console.error("[handleVote] Error: La publicación no existe.");
                     throw "Post does not exist!";
                 }
                 
                 const postData = postDoc.data() as Post;
                 const pollEndTime = postData.poll?.endsAt?.toDate();
                 if (pollEndTime && new Date() > pollEndTime) {
-                    console.log("[handleVote] La encuesta ha finalizado. No se puede votar.");
                     toast({ variant: "destructive", title: "Encuesta finalizada", description: "Esta encuesta ya ha terminado." });
                     return;
                 }
@@ -196,15 +192,12 @@ const PollComponent = ({ post, onVote }: { post: Post; onVote: (newPollData: Pos
                 const previousVoteIndex = newVoters[user.uid];
 
                 if (previousVoteIndex !== undefined) {
-                    console.log(`[handleVote] El usuario ya había votado por la opción ${previousVoteIndex}. Cambiando voto.`);
                     if (previousVoteIndex === optionIndex) {
-                        console.log("[handleVote] El usuario hizo clic en la misma opción de nuevo. No se hace nada.");
                         setIsVoting(false); // Release lock early
                         return;
                     }
                     newOptions[previousVoteIndex].votes -= 1;
                 } else {
-                    console.log("[handleVote] Voto nuevo. Incrementando el total de votos.");
                     newTotalVotes += 1;
                 }
                 
@@ -220,10 +213,8 @@ const PollComponent = ({ post, onVote }: { post: Post; onVote: (newPollData: Pos
                 
                 const updateData = { "poll": finalPollData };
 
-                console.log("[handleVote] Datos a actualizar:", updateData);
                 transaction.update(postRef, updateData);
             });
-            console.log("[handleVote] Transacción completada exitosamente.");
             if (finalPollData) {
                 onVote(finalPollData); // Trigger re-render on parent with the new poll data
             }
@@ -232,7 +223,6 @@ const PollComponent = ({ post, onVote }: { post: Post; onVote: (newPollData: Pos
             toast({ variant: "destructive", title: "Error", description: "No se pudo registrar tu voto." });
         } finally {
             setIsVoting(false);
-            console.log("[handleVote] Proceso de votación finalizado.");
         }
     };
     
