@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { clientDb } from "@/lib/firebase/client";
 import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, updateDoc, increment, arrayUnion, arrayRemove, runTransaction, Timestamp, limit, startAfter, getDocs, QueryDocumentSnapshot, DocumentData } from "firebase/firestore";
@@ -413,6 +413,19 @@ export default function ForumPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
   const [isUploadingCourseImage, setIsUploadingCourseImage] = useState(false);
+  
+  const observer = useRef<IntersectionObserver>();
+  const loadMoreRef = useCallback((node: HTMLDivElement) => {
+    if (loading) return;
+    if (observer.current) observer.current.disconnect();
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore && !loadingMore) {
+        loadMorePosts();
+      }
+    });
+    if (node) observer.current.observe(node);
+  }, [loading, loadingMore, hasMore]);
+
 
   const courseForm = useForm<z.infer<typeof courseSchema>>({
     resolver: zodResolver(courseSchema),
@@ -427,6 +440,40 @@ export default function ForumPage() {
     },
   });
   const isFreeWatcher = courseForm.watch('isFree');
+
+  const loadMorePosts = async () => {
+    if (!lastVisible || loadingMore) return;
+    setLoadingMore(true);
+
+    let q;
+    if (activeTab === 'recent') {
+        q = query(collection(clientDb, "forumPosts"), orderBy("createdAt", "desc"), startAfter(lastVisible), limit(POSTS_PER_PAGE));
+    } else { // 'popular'
+        q = query(collection(clientDb, "forumPosts"), orderBy("likesCount", "desc"), startAfter(lastVisible), limit(POSTS_PER_PAGE));
+    }
+    
+    try {
+        const querySnapshot = await getDocs(q);
+        const newPosts: Post[] = [];
+        querySnapshot.forEach((doc) => {
+            newPosts.push({ id: doc.id, ...doc.data() } as Post);
+        });
+        
+        setPosts(prevPosts => [...prevPosts, ...newPosts]);
+        
+        const lastDoc = querySnapshot.docs[querySnapshot.docs.length - 1];
+        setLastVisible(lastDoc);
+
+        if (querySnapshot.docs.length < POSTS_PER_PAGE) {
+            setHasMore(false);
+        }
+    } catch (error) {
+        console.error("Error fetching more posts:", error);
+        toast({ variant: "destructive", title: "Error", description: "No se pudieron cargar más publicaciones." });
+    } finally {
+        setLoadingMore(false);
+    }
+  }
 
   useEffect(() => {
     const fetchInitialPosts = async () => {
@@ -468,41 +515,6 @@ export default function ForumPage() {
     fetchInitialPosts();
 
   }, [activeTab, toast]);
-
-  const loadMorePosts = async () => {
-    if (!lastVisible || loadingMore) return;
-    setLoadingMore(true);
-
-    let q;
-    if (activeTab === 'recent') {
-        q = query(collection(clientDb, "forumPosts"), orderBy("createdAt", "desc"), startAfter(lastVisible), limit(POSTS_PER_PAGE));
-    } else { // 'popular'
-        q = query(collection(clientDb, "forumPosts"), orderBy("likesCount", "desc"), startAfter(lastVisible), limit(POSTS_PER_PAGE));
-    }
-    
-    try {
-        const querySnapshot = await getDocs(q);
-        const newPosts: Post[] = [];
-        querySnapshot.forEach((doc) => {
-            newPosts.push({ id: doc.id, ...doc.data() } as Post);
-        });
-        
-        setPosts(prevPosts => [...prevPosts, ...newPosts]);
-        
-        const lastDoc = querySnapshot.docs[querySnapshot.docs.length - 1];
-        setLastVisible(lastDoc);
-
-        if (querySnapshot.docs.length < POSTS_PER_PAGE) {
-            setHasMore(false);
-        }
-    } catch (error) {
-        console.error("Error fetching more posts:", error);
-        toast({ variant: "destructive", title: "Error", description: "No se pudieron cargar más publicaciones." });
-    } finally {
-        setLoadingMore(false);
-    }
-  }
-
 
   const uploadFile = async (file: File) => {
     const formData = new FormData();
@@ -829,17 +841,15 @@ export default function ForumPage() {
                         <p className="text-muted-foreground font-body mt-2">¡Sé el primero en compartir algo con la comunidad!</p>
                     </div>
                 )}
-                 {!loading && hasMore && (
-                    <div className="flex justify-center">
-                        <Button
-                            variant="outline"
-                            onClick={loadMorePosts}
-                            disabled={loadingMore}
-                        >
-                            {loadingMore ? 'Cargando...' : 'Cargar más publicaciones'}
-                        </Button>
+                 
+                 <div ref={loadMoreRef} />
+
+                 {loadingMore && (
+                    <div className="space-y-4">
+                         <Skeleton className="h-48 w-full rounded-lg" />
                     </div>
-                )}
+                 )}
+
             </TabsContent>
         </Tabs>
     </div>
