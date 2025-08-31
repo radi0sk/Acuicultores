@@ -28,7 +28,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 const categoryMap: { [key: string]: string } = {
   insumo: "Insumo en Venta",
   alevines: "Alevines o Lotes",
-  equipo: "Equipo Usado",
+  equipo: "Equipo",
 };
 
 export default function EditItemPage() {

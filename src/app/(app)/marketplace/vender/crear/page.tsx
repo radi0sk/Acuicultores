@@ -23,7 +23,7 @@ const publicationTypes = [
   },
   {
     icon: <Wrench className="h-8 w-8 text-primary" />,
-    title: "Equipo Usado",
+    title: "Equipo",
     description: "Vende equipo de segunda mano, como bombas, tanques, etc.",
     href: "/marketplace/vender/crear/equipo",
     category: "equipo",
