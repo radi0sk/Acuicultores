@@ -29,7 +29,7 @@ const enhancePublicationFlow = ai.defineFlow(
   },
   async (input) => {
     const { output } = await ai.generate({
-      model: 'googleai/gemini-1.5-pro-latest',
+      model: 'googleai/gemini-1.5-flash-latest',
       prompt: `
         Eres un experto en acuicultura, ambientalismo y legislación guatemalteca. Tu tarea es desarrollar un artículo profesional basado en el título y contenido proporcionado.
 
@@ -66,4 +66,3 @@ const enhancePublicationFlow = ai.defineFlow(
     return output;
   }
 );
-
