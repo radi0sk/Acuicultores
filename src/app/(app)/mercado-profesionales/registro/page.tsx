@@ -421,7 +421,9 @@ export default function ProfessionalRegistrationPage() {
         availability,
         updatedAt: serverTimestamp(),
         isProfessional: true,
-        colegiadoStatus: (isColegiado && !professionalProfile?.colegiadoStatus) ? 'provided' : professionalProfile?.colegiadoStatus,
+        colegiadoStatus: isColegiado && professionalProfile?.colegiadoStatus !== 'validated' 
+            ? 'provided' 
+            : professionalProfile?.colegiadoStatus || null,
       };
 
       const profileRef = doc(clientDb, `users/${user.uid}/professionalProfile/data`);
