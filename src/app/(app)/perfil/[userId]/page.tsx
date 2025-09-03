@@ -60,6 +60,7 @@ interface UserProfileData {
 }
 
 interface ProfessionalProfileData {
+    professionalPhotoURL?: string;
     professionalType?: string;
     specialization?: string;
     aboutMe?: string;
@@ -486,7 +487,7 @@ ${requestDescription}
         <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-8">
             <div className="flex flex-col md:flex-row items-start gap-6">
                 <Avatar className="h-28 w-28 border-4 border-background shadow-md flex-shrink-0">
-                <AvatarImage src={profile.photoURL} alt={profile.name} data-ai-hint="person portrait" />
+                <AvatarImage src={professionalProfile?.professionalPhotoURL || profile.photoURL} alt={profile.name} data-ai-hint="person portrait" />
                 <AvatarFallback className="text-4xl">{profile.name?.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                 </Avatar>
                 <div className="space-y-2 flex-1">
@@ -777,5 +778,3 @@ ${requestDescription}
     </>
   );
 }
-
-    

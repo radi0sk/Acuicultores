@@ -1,11 +1,11 @@
 
 "use client";
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { clientDb } from '@/lib/firebase/client';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -184,9 +184,15 @@ export default function ProfessionalRegistrationPage() {
   const { user, userProfile, professionalProfile, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
 
+  // --- Main Profile State ---
+  const [name, setName] = useState('');
+  
+  // --- Professional Profile State ---
+  const [professionalPhotoURL, setProfessionalPhotoURL] = useState<string | undefined>(undefined);
   const [professionalType, setProfessionalType] = useState('');
   const [specialization, setSpecialization] = useState('');
   const [aboutMe, setAboutMe] = useState('');
@@ -202,13 +208,18 @@ export default function ProfessionalRegistrationPage() {
   const [availability, setAvailability] = useState<string[]>([]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [uploadingCertId, setUploadingCertId] = useState<string | null>(null);
 
   const hasProfessionalProfile = professionalProfile && Object.keys(professionalProfile).length > 0;
 
   useEffect(() => {
     if (!isAuthLoading) {
+      if (userProfile) {
+        setName(userProfile.name || '');
+      }
       if (professionalProfile) {
+        setProfessionalPhotoURL(professionalProfile.professionalPhotoURL);
         setProfessionalType(professionalProfile.professionalType || '');
         setSpecialization(professionalProfile.specialization || '');
         setAboutMe(professionalProfile.aboutMe || '');
@@ -229,7 +240,7 @@ export default function ProfessionalRegistrationPage() {
       }
       setIsLoadingProfile(false);
     }
-  }, [professionalProfile, isAuthLoading]);
+  }, [userProfile, professionalProfile, isAuthLoading]);
 
   // --- Sorting Logic ---
   const sortedExperiences = useMemo(() => {
@@ -265,6 +276,42 @@ export default function ProfessionalRegistrationPage() {
         return dateB.getTime() - dateA.getTime();
     });
   }, [certifications]);
+  
+  const uploadFile = async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+        const response = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+        });
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to upload file');
+        }
+        return await response.json();
+    } catch (error: any) {
+        toast({
+            variant: 'destructive',
+            title: 'Error al subir archivo',
+            description: error.message
+        });
+        return null;
+    }
+  };
+
+  const handleProfilePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setIsUploadingPhoto(true);
+      const result = await uploadFile(file);
+      if (result && result.url) {
+        setProfessionalPhotoURL(result.url);
+        toast({ title: 'Foto de perfil actualizada', description: 'Tu nueva foto profesional está lista.' });
+      }
+      setIsUploadingPhoto(false);
+    }
+  };
 
   // --- Experience Handlers ---
   const addExperience = () => {
@@ -321,34 +368,14 @@ export default function ProfessionalRegistrationPage() {
     const handleCertificationUpload = async (file: File, certId: string) => {
         if (!file) return;
         setUploadingCertId(certId);
-
-        try {
-            const formData = new FormData();
-            formData.append('file', file);
-            
-            const response = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData,
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ error: 'Failed to parse error JSON from server.' }));
-                throw new Error(errorData.error || 'Failed to upload file');
-            }
-
-            const { url, type } = await response.json();
-
-            updateCertification(certId, 'attachmentUrl', url);
+        const result = await uploadFile(file);
+        if (result) {
+            updateCertification(certId, 'attachmentUrl', result.url);
             updateCertification(certId, 'attachmentName', file.name);
-            updateCertification(certId, 'attachmentType', type === 'image' ? 'image' : 'document');
-            
+            updateCertification(certId, 'attachmentType', result.type === 'image' ? 'image' : 'document');
             toast({ title: 'Archivo subido', description: 'Se ha adjuntado a la certificación.' });
-
-        } catch (error: any) {
-             toast({ variant: 'destructive', title: 'Error al subir', description: error.message });
-        } finally {
-             setUploadingCertId(null);
         }
+        setUploadingCertId(null);
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, certId: string) => {
@@ -367,13 +394,21 @@ export default function ProfessionalRegistrationPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !professionalType || !specialization || !department || !municipality || availability.length === 0) {
+    if (!user || !professionalType || !specialization || !department || !municipality || availability.length === 0 || !name.trim()) {
       toast({ variant: 'destructive', title: 'Campos requeridos', description: 'Por favor completa todos los campos marcados con *.' });
       return;
     }
     setIsSubmitting(true);
     try {
-      const professionalProfileData: Partial<ProfessionalProfile> = {
+      // 1. Update general user profile if name changed
+      if (userProfile?.name !== name) {
+        const userDocRef = doc(clientDb, 'users', user.uid);
+        await updateDoc(userDocRef, { name });
+      }
+
+      // 2. Update professional profile
+      const professionalProfileData = {
+        professionalPhotoURL,
         professionalType,
         specialization,
         aboutMe,
@@ -386,14 +421,10 @@ export default function ProfessionalRegistrationPage() {
         availability,
         updatedAt: serverTimestamp(),
         isProfessional: true,
+        colegiadoStatus: (isColegiado && !professionalProfile?.colegiadoStatus) ? 'provided' : professionalProfile?.colegiadoStatus,
       };
 
-      if (isColegiado && !professionalProfile?.colegiadoStatus) {
-        professionalProfileData.colegiadoStatus = 'provided';
-      }
-
       const profileRef = doc(clientDb, `users/${user.uid}/professionalProfile/data`);
-      
       await setDoc(profileRef, professionalProfileData, { merge: true });
 
       toast({ title: '¡Perfil guardado!', description: 'Tu perfil profesional ha sido guardado exitosamente.' });
@@ -454,13 +485,32 @@ export default function ProfessionalRegistrationPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center gap-4">
-            <Avatar className="h-20 w-20">
-              <AvatarImage src={user.photoURL || undefined} alt={userProfile?.name || ''} />
-              <AvatarFallback>{userProfile?.name?.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-            </Avatar>
+             <div className="relative group">
+                <input
+                    type="file"
+                    ref={photoInputRef}
+                    onChange={handleProfilePhotoUpload}
+                    className="hidden"
+                    accept="image/*"
+                />
+                <Avatar className="h-20 w-20">
+                  <AvatarImage src={professionalPhotoURL || user.photoURL || undefined} alt={name || ''} />
+                  <AvatarFallback>{name?.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                </Avatar>
+                 <Button
+                    type="button"
+                    size="icon"
+                    variant="secondary"
+                    className="absolute bottom-0 right-0 h-7 w-7 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => photoInputRef.current?.click()}
+                    disabled={isUploadingPhoto}
+                >
+                    <Edit className="h-4 w-4" />
+                </Button>
+            </div>
             <div className="w-full space-y-2">
-              <Label htmlFor="name">Nombre Completo</Label>
-              <Input id="name" value={userProfile?.name || ''} disabled />
+              <Label htmlFor="name">Nombre Completo *</Label>
+              <Input id="name" value={name} onChange={e => setName(e.target.value)} />
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

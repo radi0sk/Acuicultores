@@ -18,6 +18,7 @@ interface ProfessionalProfile {
     id: string; // User ID
     name: string;
     photoURL: string;
+    professionalPhotoURL?: string;
     professionalType: string;
     specialization: string;
     location: string;
@@ -82,6 +83,7 @@ export default function ProfessionalsPage() {
                         id: userDoc.id,
                         name: userData.name,
                         photoURL: userData.photoURL,
+                        professionalPhotoURL: data.professionalPhotoURL,
                         professionalType: data.professionalType,
                         specialization: data.specialization,
                         location: data.location,
@@ -169,7 +171,7 @@ export default function ProfessionalsPage() {
                 <CardHeader className="p-6 pb-0">
                   <Link href={`/perfil/${prof.id}`} className="flex flex-row items-start gap-4 group">
                       <Avatar className="h-16 w-16 border">
-                          <AvatarImage src={prof.photoURL} alt={prof.name} data-ai-hint="person portrait" />
+                          <AvatarImage src={prof.professionalPhotoURL || prof.photoURL} alt={prof.name} data-ai-hint="person portrait" />
                           <AvatarFallback>{prof.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
@@ -210,4 +212,3 @@ export default function ProfessionalsPage() {
     </div>
   )
 }
-
