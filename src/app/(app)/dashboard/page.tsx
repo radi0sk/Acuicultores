@@ -18,7 +18,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription }
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ThumbsUp, MessageSquare, Share2, Image as ImageIcon, Video, BarChartHorizontalBig, X, PlusCircle, Timer, GraduationCap, ArrowUpRight, Briefcase, BookOpen, ShoppingCart } from "lucide-react";
+import { ThumbsUp, MessageSquare, Share2, Image as ImageIcon, Video, BarChartHorizontalBig, X, PlusCircle, Timer, GraduationCap } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose, DialogFooter } from "@/components/ui/dialog";
 import CommentSection from "../foro/CommentSection";
@@ -30,6 +30,8 @@ import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
+import DashboardNav from "./DashboardNav";
+import QuickAccess from "./QuickAccess";
 
 const POSTS_PER_PAGE = 5;
 
@@ -385,40 +387,6 @@ const PostCard = ({ post, onCommentClick, onPostUpdate }: { post: Post, onCommen
     );
 };
 
-const QuickAccess = () => (
-    <Card className="col-span-4 lg:col-span-1">
-        <CardHeader>
-            <CardTitle className="font-headline">Accesos Rápidos</CardTitle>
-            <CardDescription className="font-body">Tus módulos más utilizados.</CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4">
-            <Link href="/mercado-profesionales" className="flex items-center gap-4 rounded-lg bg-secondary p-4 transition-colors hover:bg-secondary/80">
-                <Briefcase className="h-6 w-6 text-primary" />
-                <div className="flex-1">
-                    <p className="font-headline text-sm font-semibold">Profesionales</p>
-                    <p className="text-sm text-muted-foreground font-body">Encuentra técnicos y proveedores.</p>
-                </div>
-                <ArrowUpRight className="h-5 w-5 text-muted-foreground" />
-            </Link>
-            <Link href="/marketplace" className="flex items-center gap-4 rounded-lg bg-secondary p-4 transition-colors hover:bg-secondary/80">
-                <ShoppingCart className="h-6 w-6 text-primary" />
-                <div className="flex-1">
-                    <p className="font-headline text-sm font-semibold">Marketplace</p>
-                    <p className="text-sm text-muted-foreground font-body">Compra y vende productos.</p>
-                </div>
-                <ArrowUpRight className="h-5 w-5 text-muted-foreground" />
-            </Link>
-            <Link href="/biblioteca" className="flex items-center gap-4 rounded-lg bg-secondary p-4 transition-colors hover:bg-secondary/80">
-                <BookOpen className="h-6 w-6 text-primary" />
-                <div className="flex-1">
-                    <p className="font-headline text-sm font-semibold">Biblioteca</p>
-                    <p className="text-sm text-muted-foreground font-body">Aprende nuevas técnicas y guías.</p>
-                </div>
-                <ArrowUpRight className="h-5 w-5 text-muted-foreground" />
-            </Link>
-        </CardContent>
-    </Card>
-)
 
 export default function DashboardPage() {
   const { user, userProfile } = useAuth();
@@ -774,45 +742,16 @@ export default function DashboardPage() {
       }
     };
   
-  const getFirstName = () => {
-    if (userProfile?.name) {
-      return userProfile.name.split(' ')[0];
-    }
-    return "de nuevo";
-  }
-
   return (
     <>
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
-        {/* Left Column */}
-        <div className="hidden lg:block lg:col-span-1 space-y-6">
-            <Card>
-                <CardHeader className="flex flex-row items-center gap-4">
-                    <Avatar className="h-14 w-14">
-                        <AvatarImage src={user?.photoURL || undefined} alt={userProfile?.name || ''} data-ai-hint="person portrait" />
-                        <AvatarFallback>{userProfile?.name?.split(' ').map(n => n[0]).join('') || 'U'}</AvatarFallback>
-                    </Avatar>
-                     <div>
-                        <CardTitle className="font-headline text-lg">{userProfile?.name}</CardTitle>
-                        <CardDescription className="font-body text-xs">@{userProfile?.name?.replace(/\s+/g, '').toLowerCase()}</CardDescription>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-sm text-muted-foreground font-body line-clamp-3">
-                        Bienvenido/a {getFirstName()}. Este es tu espacio para conectar, compartir y crecer con la comunidad de acuicultores.
-                    </p>
-                </CardContent>
-                 <CardFooter>
-                    <Button asChild className="w-full" variant="secondary">
-                        <Link href={`/perfil/${user?.uid}`}>Ver mi perfil</Link>
-                    </Button>
-                </CardFooter>
-            </Card>
-            <QuickAccess />
-        </div>
+    <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+        {/* Left Column (Nav) */}
+        <aside className="hidden md:block md:col-span-3 sticky top-6">
+            <DashboardNav />
+        </aside>
 
-        {/* Center Column */}
-        <div className="lg:col-span-2 space-y-6">
+        {/* Center Column (Forum) */}
+        <main className="col-span-12 md:col-span-6 space-y-6">
             <Card>
                 <CardHeader>
                     <div className="flex items-start gap-4">
@@ -937,10 +876,11 @@ export default function DashboardPage() {
                     )}
                 </TabsContent>
             </Tabs>
-        </div>
+        </main>
 
-        {/* Right Column */}
-        <div className="hidden lg:block lg:col-span-1 space-y-6">
+        {/* Right Column (Widgets) */}
+        <aside className="hidden md:block md:col-span-3 space-y-6 sticky top-6">
+             <QuickAccess />
              <Card>
                 <CardHeader>
                     <CardTitle className="font-headline">Actividad de la Plataforma</CardTitle>
@@ -968,7 +908,7 @@ export default function DashboardPage() {
                     </ResponsiveContainer>
                 </CardContent>
             </Card>
-        </div>
+        </aside>
     </div>
 
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
@@ -1091,3 +1031,5 @@ export default function DashboardPage() {
     </>
   );
 }
+
+    

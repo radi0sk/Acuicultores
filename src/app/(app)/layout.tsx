@@ -66,134 +66,139 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
     );
   }
 
+  // Hide header on dashboard for the new 3-column layout
+  const showHeader = pathname !== '/dashboard';
+
   // Authenticated user view
   if (user) {
     return (
      <div className="flex min-h-screen w-full flex-col">
-        <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6 z-50">
-          <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
-            <Link
-              href="/dashboard"
-              className="flex items-center gap-2 text-lg font-semibold md:text-base"
-            >
-              <FishIcon className="h-6 w-6 text-primary" />
-              <span className="font-headline text-xl">AcuicultoresGT</span>
-            </Link>
-            {navItems.map((item) => (
+        {showHeader && (
+          <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6 z-50">
+            <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
               <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "font-headline transition-colors hover:text-foreground",
-                  pathname.startsWith(item.href)
-                    ? "text-foreground"
-                    : "text-muted-foreground"
-                )}
+                href="/dashboard"
+                className="flex items-center gap-2 text-lg font-semibold md:text-base"
               >
-                {item.label}
+                <FishIcon className="h-6 w-6 text-primary" />
+                <span className="font-headline text-xl">AcuicultoresGT</span>
               </Link>
-            ))}
-          </nav>
-          
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="shrink-0 md:hidden"
-              >
-                <Menu className="h-5 w-5" />
-                <span className="sr-only">Toggle navigation menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left">
-              <SheetHeader className="hidden">
-                <SheetTitle>Navigation Menu</SheetTitle>
-              </SheetHeader>
-              <nav className="grid gap-6 text-lg font-medium">
+              {navItems.map((item) => (
                 <Link
-                  href="/dashboard"
-                  className="flex items-center gap-2 text-lg font-semibold"
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "font-headline transition-colors hover:text-foreground",
+                    pathname.startsWith(item.href)
+                      ? "text-foreground"
+                      : "text-muted-foreground"
+                  )}
                 >
-                  <FishIcon className="h-6 w-6 text-primary" />
-                  <span className="font-headline text-xl">AcuicultoresGT</span>
+                  {item.label}
                 </Link>
-                {navItems.map((item) => (
-                    <SheetClose asChild key={item.href}>
-                        <Link
-                            href={item.href}
-                            className={cn(
-                                "flex items-center gap-4 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
-                                pathname.startsWith(item.href) && "text-primary bg-muted"
-                            )}
-                        >
-                            <item.icon className="h-5 w-5" />
-                            {item.label}
-                        </Link>
-                    </SheetClose>
-                ))}
-              </nav>
-            </SheetContent>
-          </Sheet>
-
-          <div className="flex w-full items-center justify-end gap-2 md:ml-auto md:gap-4">
-            <MessagingDropdown />
-            <NotificationsDropdown />
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={user.photoURL || undefined} alt={userProfile?.name || ''} data-ai-hint="person portrait" />
-                    <AvatarFallback>{userProfile?.name?.split(' ').map(n => n[0]).join('') || 'U'}</AvatarFallback>
-                  </Avatar>
-                  <span className="sr-only">Toggle user menu</span>
+              ))}
+            </nav>
+            
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="shrink-0 md:hidden"
+                >
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Toggle navigation menu</span>
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal p-0">
-                    <Link href={`/perfil/${user.uid}`} className="block rounded-t-md px-2 py-1.5 hover:bg-accent">
-                        <div className="flex flex-col space-y-1">
-                            <p className="text-sm font-medium leading-none font-headline">{userProfile?.name}</p>
-                            <p className="text-xs leading-none text-muted-foreground font-body">
-                                {user?.email}
-                            </p>
-                        </div>
-                    </Link>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {isAdmin && (
-                  <>
-                  <DropdownMenuItem asChild>
-                    <Link href="/admin/aprobaciones">
-                      <ShieldCheck className="mr-2 h-4 w-4" />
-                      <span>Aprobaciones</span>
-                    </Link>
-                  </DropdownMenuItem>
+              </SheetTrigger>
+              <SheetContent side="left">
+                <SheetHeader className="hidden">
+                  <SheetTitle>Navigation Menu</SheetTitle>
+                </SheetHeader>
+                <nav className="grid gap-6 text-lg font-medium">
+                  <Link
+                    href="/dashboard"
+                    className="flex items-center gap-2 text-lg font-semibold"
+                  >
+                    <FishIcon className="h-6 w-6 text-primary" />
+                    <span className="font-headline text-xl">AcuicultoresGT</span>
+                  </Link>
+                  {navItems.map((item) => (
+                      <SheetClose asChild key={item.href}>
+                          <Link
+                              href={item.href}
+                              className={cn(
+                                  "flex items-center gap-4 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
+                                  pathname.startsWith(item.href) && "text-primary bg-muted"
+                              )}
+                          >
+                              <item.icon className="h-5 w-5" />
+                              {item.label}
+                          </Link>
+                      </SheetClose>
+                  ))}
+                </nav>
+              </SheetContent>
+            </Sheet>
+
+            <div className="flex w-full items-center justify-end gap-2 md:ml-auto md:gap-4">
+              <MessagingDropdown />
+              <NotificationsDropdown />
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={user.photoURL || undefined} alt={userProfile?.name || ''} data-ai-hint="person portrait" />
+                      <AvatarFallback>{userProfile?.name?.split(' ').map(n => n[0]).join('') || 'U'}</AvatarFallback>
+                    </Avatar>
+                    <span className="sr-only">Toggle user menu</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal p-0">
+                      <Link href={`/perfil/${user.uid}`} className="block rounded-t-md px-2 py-1.5 hover:bg-accent">
+                          <div className="flex flex-col space-y-1">
+                              <p className="text-sm font-medium leading-none font-headline">{userProfile?.name}</p>
+                              <p className="text-xs leading-none text-muted-foreground font-body">
+                                  {user?.email}
+                              </p>
+                          </div>
+                      </Link>
+                  </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  </>
-                )}
-                <DropdownMenuGroup>
-                    <DropdownMenuLabel className="font-headline text-xs font-normal text-muted-foreground px-2">Cambiar Perfil</DropdownMenuLabel>
-                    {userProfile?.roles?.map(role => (
-                        <DropdownMenuItem key={role} onClick={() => setActiveProfile(role)} className="font-body">
-                            {role}
-                            {activeProfile === role && <Check className="w-4 h-4 ml-auto" />} 
-                        </DropdownMenuItem>
-                    ))}
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="font-body">Configuración</DropdownMenuItem>
-                <DropdownMenuItem className="font-body">Soporte</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="font-body text-red-600 focus:bg-red-50 focus:text-red-700">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Cerrar Sesión
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </header>
+                  {isAdmin && (
+                    <>
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin/aprobaciones">
+                        <ShieldCheck className="mr-2 h-4 w-4" />
+                        <span>Aprobaciones</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    </>
+                  )}
+                  <DropdownMenuGroup>
+                      <DropdownMenuLabel className="font-headline text-xs font-normal text-muted-foreground px-2">Cambiar Perfil</DropdownMenuLabel>
+                      {userProfile?.roles?.map(role => (
+                          <DropdownMenuItem key={role} onClick={() => setActiveProfile(role)} className="font-body">
+                              {role}
+                              {activeProfile === role && <Check className="w-4 h-4 ml-auto" />} 
+                          </DropdownMenuItem>
+                      ))}
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="font-body">Configuración</DropdownMenuItem>
+                  <DropdownMenuItem className="font-body">Soporte</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="font-body text-red-600 focus:bg-red-50 focus:text-red-700">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Cerrar Sesión
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </header>
+        )}
         <main className="flex-1 p-4 sm:p-6">
           {children}
         </main>
@@ -233,3 +238,5 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <AppLayoutContent>{children}</AppLayoutContent>
   )
 }
+
+    
