@@ -18,7 +18,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription }
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ThumbsUp, MessageSquare, Share2, Image as ImageIcon, Video, BarChartHorizontalBig, X, PlusCircle, Timer, GraduationCap } from "lucide-react";
+import { ThumbsUp, MessageSquare, Share2, Image as ImageIcon, Video, BarChartHorizontalBig, X, PlusCircle, Timer, GraduationCap, Search } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose, DialogFooter } from "@/components/ui/dialog";
 import CommentSection from "../foro/CommentSection";
@@ -746,7 +746,7 @@ export default function DashboardPage() {
     <>
     <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
         {/* Left Column (Nav) */}
-        <aside className="hidden md:block md:col-span-3 sticky top-6">
+        <aside className="hidden md:block md:col-span-3 sticky top-6 h-screen overflow-y-auto">
             <DashboardNav />
         </aside>
 
@@ -879,7 +879,18 @@ export default function DashboardPage() {
         </main>
 
         {/* Right Column (Widgets) */}
-        <aside className="hidden md:block md:col-span-3 space-y-6 sticky top-6">
+        <aside className="hidden md:block md:col-span-3 space-y-6 sticky top-6 h-screen overflow-y-auto">
+             <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline">Búsqueda Global</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input placeholder="Buscar en toda la plataforma..." className="pl-9"/>
+                    </div>
+                </CardContent>
+             </Card>
              <QuickAccess />
              <Card>
                 <CardHeader>
@@ -1031,5 +1042,3 @@ export default function DashboardPage() {
     </>
   );
 }
-
-    
