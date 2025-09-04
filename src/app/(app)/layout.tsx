@@ -51,7 +51,6 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
     { href: "/dashboard", icon: Home, label: "Inicio" },
     { href: "/mercado-profesionales", icon: Briefcase, label: "Profesionales" },
     { href: "/marketplace", icon: ShoppingCart, label: "Marketplace" },
-    { href: "/foro", icon: MessagesSquare, label: "Foro" },
     { href: "/biblioteca", icon: BookOpen, label: "Biblioteca" },
     { href: "/publicaciones", icon: Newspaper, label: "Publicaciones" },
   ];

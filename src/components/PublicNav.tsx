@@ -33,7 +33,6 @@ const navLinks = [
     { href: "/mercado-profesionales", label: "Profesionales", icon: Briefcase },
     { href: "/marketplace", label: "Marketplace", icon: ShoppingCart },
     { href: "/biblioteca", label: "Biblioteca", icon: BookOpen },
-    { href: "/foro", label: "Foro", icon: MessagesSquare },
 ];
 
 export default function PublicNav() {
