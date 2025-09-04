@@ -18,7 +18,6 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 
 const navItems = [
-    { href: "/dashboard", icon: Home, label: "Inicio" },
     { href: "/mercado-profesionales", icon: Briefcase, label: "Profesionales" },
     { href: "/marketplace", icon: ShoppingCart, label: "Marketplace" },
     { href: "/biblioteca", icon: BookOpen, label: "Biblioteca" },
@@ -62,6 +61,16 @@ export default function DashboardNav() {
       </Card>
       
       <nav className="flex flex-col gap-1">
+        <Button
+            asChild
+            variant={pathname === '/dashboard' ? 'secondary' : 'ghost'}
+            className="justify-start font-headline text-base"
+          >
+            <Link href="/dashboard">
+              <Home className="mr-3 h-5 w-5" />
+              Inicio
+            </Link>
+          </Button>
         {navItems.map((item) => (
           <Button
             key={item.href}
@@ -79,5 +88,3 @@ export default function DashboardNav() {
     </div>
   );
 }
-
-    
