@@ -879,7 +879,7 @@ export default function DashboardPage() {
         </main>
 
         {/* Right Column (Widgets) */}
-        <aside className="hidden md:block md:col-span-3 space-y-6 sticky top-6 h-screen overflow-y-auto">
+        <aside className="hidden md:block md:col-span-3 space-y-6 sticky top-6 h-screen overflow-y-auto no-scrollbar">
              <Card>
                 <CardHeader>
                     <CardTitle className="font-headline">Búsqueda Global</CardTitle>
