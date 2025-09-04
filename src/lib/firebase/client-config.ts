@@ -7,12 +7,13 @@
 // Project Settings > General > Your apps > Web app > SDK setup and configuration > Config
 
 export const firebaseConfig = {
-    apiKey: "AIzaSyC8vX2PYurrmYIiJw6qRHYvQ8R1RfRLPz0",
-    authDomain: "atitln-aquahub.firebaseapp.com",
-    projectId: "atitln-aquahub",
-    storageBucket: "atitln-aquahub.firebasestorage.app",
-    messagingSenderId: "1012926555606",
-    appId: "1:1012926555606:web:df6a8b4d172042422b7077",
+  "projectId": "atitln-aquahub",
+  "appId": "1:1012926555606:web:4f29e0a7cd9d360d2b7077",
+  "storageBucket": "atitln-aquahub.firebasestorage.app",
+  "apiKey": "AIzaSyC8vX2PYurrmYIiJw6qRHYvQ8R1RfRLPz0",
+  "authDomain": "atitln-aquahub.firebaseapp.com",
+  "measurementId": "",
+  "messagingSenderId": "1012926555606"
 };
 
 // These are NOT secrets and are safe to be exposed in the client.
