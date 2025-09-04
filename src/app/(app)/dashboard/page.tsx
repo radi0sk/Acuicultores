@@ -879,46 +879,50 @@ export default function DashboardPage() {
         </main>
 
         {/* Right Column (Widgets) */}
-        <aside className="hidden md:block md:col-span-3 space-y-6 sticky top-6 h-screen overflow-y-auto no-scrollbar">
-             <Card>
-                <CardHeader>
-                    <CardTitle className="font-headline">Búsqueda Global</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input placeholder="Buscar en toda la plataforma..." className="pl-9"/>
-                    </div>
-                </CardContent>
-             </Card>
-             <QuickAccess />
-             <Card>
-                <CardHeader>
-                    <CardTitle className="font-headline">Actividad de la Plataforma</CardTitle>
-                    <CardDescription className="font-body">Nuevas publicaciones y productos en los últimos 6 meses.</CardDescription>
-                </CardHeader>
-                <CardContent className="pl-2">
-                    <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={chartData}>
-                        <XAxis
-                        dataKey="month"
-                        stroke="#888888"
-                        fontSize={12}
-                        tickLine={false}
-                        axisLine={false}
-                        />
-                        <YAxis
-                        stroke="#888888"
-                        fontSize={12}
-                        tickLine={false}
-                        axisLine={false}
-                        tickFormatter={(value) => `${value}`}
-                        />
-                        <Bar dataKey="total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                    </ResponsiveContainer>
-                </CardContent>
-            </Card>
+        <aside className="hidden md:block md:col-span-3 h-screen overflow-y-auto no-scrollbar">
+             <div className="sticky top-6 z-10 bg-background pb-4">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="font-headline">Búsqueda Global</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input placeholder="Buscar en toda la plataforma..." className="pl-9"/>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+            <div className="space-y-6">
+                <QuickAccess />
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="font-headline">Actividad de la Plataforma</CardTitle>
+                        <CardDescription className="font-body">Nuevas publicaciones y productos en los últimos 6 meses.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="pl-2">
+                        <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={chartData}>
+                            <XAxis
+                            dataKey="month"
+                            stroke="#888888"
+                            fontSize={12}
+                            tickLine={false}
+                            axisLine={false}
+                            />
+                            <YAxis
+                            stroke="#888888"
+                            fontSize={12}
+                            tickLine={false}
+                            axisLine={false}
+                            tickFormatter={(value) => `${value}`}
+                            />
+                            <Bar dataKey="total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                        </BarChart>
+                        </ResponsiveContainer>
+                    </CardContent>
+                </Card>
+            </div>
         </aside>
     </div>
 
