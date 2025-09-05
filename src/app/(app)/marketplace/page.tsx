@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Search, MapPin, Tag, Package } from "lucide-react"
+import { Search, MapPin, Tag, Package, Home } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/hooks/useAuth";
 import { Label } from "@/components/ui/label";
@@ -108,23 +108,19 @@ export default function MarketplaceBuyPage() {
 
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] lg:grid-cols-[320px_1fr] gap-8 items-start">
-        <aside className="hidden md:flex flex-col gap-4 sticky top-20">
-             <div>
-                 <h1 className="font-headline text-2xl font-bold">Marketplace</h1>
-                 <p className="font-body text-muted-foreground text-sm">Explora productos y equipos.</p>
-             </div>
-             <div>
+    <>
+        <aside className="hidden md:flex flex-col gap-4 sticky top-6">
+            <div>
                 <Button asChild className="w-full font-headline">
-                     <Link href="/marketplace/vender">
+                    <Link href="/marketplace/vender">
                         <Tag className="mr-2 h-4 w-4" />
-                        Gestionar mis Ventas
+                        Ir a Vender
                     </Link>
                 </Button>
             </div>
              <div className="space-y-4 border-t pt-4">
-                <h2 className="font-headline font-semibold">Filtros</h2>
-                <div className="space-y-2">
+                <h2 className="font-headline font-semibold px-3">Filtros</h2>
+                <div className="space-y-2 px-3">
                     <Label htmlFor="location" className="font-body">Ubicación</Label>
                     <div className="relative">
                         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -138,7 +134,7 @@ export default function MarketplaceBuyPage() {
                     </div>
                 </div>
                 <div className="space-y-2">
-                    <Label className="font-body">Categorías</Label>
+                    <Label className="font-body px-3">Categorías</Label>
                     <div className="flex flex-col gap-1">
                         {categories.map(cat => (
                            <Button
@@ -153,6 +149,14 @@ export default function MarketplaceBuyPage() {
                     </div>
                 </div>
              </div>
+             <div className="px-3 border-t pt-4">
+                 <Button asChild className="w-full font-headline" variant="outline">
+                     <Link href="/dashboard">
+                        <Home className="mr-2 h-4 w-4" />
+                        Ir al Inicio
+                    </Link>
+                </Button>
+            </div>
         </aside>
 
         {/* Right Content */}
@@ -237,8 +241,6 @@ export default function MarketplaceBuyPage() {
                 </div>
             )}
         </main>
-    </div>
+    </>
   )
 }
-
-    
