@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Globe, MapPin, Package, Truck, Rocket, UploadCloud, X } from "lucide-react";
+import { Globe, MapPin, Package, Truck, Rocket, UploadCloud, X, ArrowLeft } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
@@ -23,6 +23,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Image from 'next/image';
 import { departments, municipalities } from "@/lib/guatemala-data";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import Link from "next/link";
 
 
 const categoryMap: { [key: string]: string } = {
@@ -211,6 +212,9 @@ export default function EditItemPage() {
       <div className="bg-background rounded-lg p-4 md:p-0">
         <div className="flex justify-between items-center mb-6">
             <h1 className="font-headline text-2xl font-bold">Editar Publicación</h1>
+             <Button asChild variant="outline">
+                <Link href="/marketplace/vender"><ArrowLeft className="mr-2 h-4 w-4"/> Ir a Tus Publicaciones</Link>
+            </Button>
         </div>
         
         <div className="flex items-center gap-3 mb-4 border rounded-lg p-3">
