@@ -83,7 +83,7 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
                 <FishIcon className="h-6 w-6 text-primary" />
                 <span className="font-headline text-xl">AcuicultoresGT</span>
               </Link>
-              {navItems.map((item) => (
+              {navItems.filter(item => item.href !== '/dashboard').map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}

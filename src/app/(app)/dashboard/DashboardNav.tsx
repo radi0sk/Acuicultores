@@ -42,7 +42,6 @@ function FishIcon(props: React.SVGProps<SVGSVGElement>) {
 
 
 const navItems = [
-    { href: "/dashboard", icon: Home, label: "Inicio" },
     { href: "/mercado-profesionales", icon: Briefcase, label: "Profesionales" },
     { href: "/marketplace", icon: ShoppingCart, label: "Marketplace" },
     { href: "/biblioteca", icon: BookOpen, label: "Biblioteca" },
