@@ -665,40 +665,48 @@ ${requestDescription}
                                 <CardContent><p className="font-body text-muted-foreground">{professionalProfile.aboutMe}</p></CardContent>
                             </Card>
                         )}
-                        {professionalProfile.experiences && professionalProfile.experiences.length > 0 && (
-                            <Card>
-                                <CardHeader><CardTitle className="font-headline text-lg flex items-center gap-2"><Briefcase/>Experiencia Profesional</CardTitle></CardHeader>
-                                <CardContent className="space-y-6 border-l ml-6">
-                                    {professionalProfile.experiences.map((exp: any, index: number) => <ExperienceCard key={index} exp={exp}/>)}
-                                </CardContent>
-                            </Card>
-                        )}
+                         <Card>
+                            <CardHeader><CardTitle className="font-headline text-lg flex items-center gap-2"><Briefcase/>Experiencia Profesional</CardTitle></CardHeader>
+                            <CardContent className="space-y-6 border-l ml-6">
+                                {professionalProfile.experiences && professionalProfile.experiences.length > 0 ? (
+                                    professionalProfile.experiences.map((exp: any, index: number) => <ExperienceCard key={index} exp={exp}/>)
+                                ) : (
+                                    <p className="text-sm text-muted-foreground font-body -ml-2">Este profesional aún no ha añadido ninguna experiencia laboral.</p>
+                                )}
+                            </CardContent>
+                        </Card>
                         </div>
                         <div className="lg:col-span-1 space-y-8 lg:sticky top-24">
-                            {professionalProfile.academicEducation && professionalProfile.academicEducation.length > 0 && (
-                                <Card>
-                                    <CardHeader><CardTitle className="font-headline text-lg flex items-center gap-2"><GraduationCap/>Educación</CardTitle></CardHeader>
-                                    <CardContent className="space-y-4 border-l ml-6">
-                                        {professionalProfile.academicEducation.map((edu: any, index: number) => <EducationCard key={index} edu={edu}/>)}
-                                    </CardContent>
-                                </Card>
-                            )}
-                            {professionalProfile.certifications && professionalProfile.certifications.length > 0 && (
-                                <Card>
-                                    <CardHeader><CardTitle className="font-headline text-lg flex items-center gap-2"><Award/>Certificaciones</CardTitle></CardHeader>
-                                    <CardContent className="space-y-4 border-l ml-6">
-                                        {professionalProfile.certifications.map((cert: any, index: number) => <CertificationCard key={index} cert={cert} onPreview={handlePreview} />)}
-                                    </CardContent>
-                                </Card>
-                            )}
-                            {professionalProfile.isColegiado && colegiadoStatusText && (
+                            <Card>
+                                <CardHeader><CardTitle className="font-headline text-lg flex items-center gap-2"><GraduationCap/>Educación</CardTitle></CardHeader>
+                                <CardContent className="space-y-4 border-l ml-6">
+                                    {professionalProfile.academicEducation && professionalProfile.academicEducation.length > 0 ? (
+                                        professionalProfile.academicEducation.map((edu: any, index: number) => <EducationCard key={index} edu={edu}/>)
+                                    ) : (
+                                        <p className="text-sm text-muted-foreground font-body -ml-2">Este profesional aún no ha añadido formación académica.</p>
+                                    )}
+                                </CardContent>
+                            </Card>
+                            <Card>
+                                <CardHeader><CardTitle className="font-headline text-lg flex items-center gap-2"><Award/>Certificaciones</CardTitle></CardHeader>
+                                <CardContent className="space-y-4 border-l ml-6">
+                                    {professionalProfile.certifications && professionalProfile.certifications.length > 0 ? (
+                                        professionalProfile.certifications.map((cert: any, index: number) => <CertificationCard key={index} cert={cert} onPreview={handlePreview} />)
+                                    ) : (
+                                        <p className="text-sm text-muted-foreground font-body -ml-2">Este profesional aún no ha añadido certificaciones.</p>
+                                    )}
+                                </CardContent>
+                            </Card>
+                            {professionalProfile.isColegiado && (
                                 <Card>
                                     <CardHeader><CardTitle className="font-headline text-lg flex items-center gap-2"><Star/>Credencial</CardTitle></CardHeader>
                                     <CardContent>
                                         <p className="font-semibold text-sm">Profesional Colegiado</p>
-                                        <p className="text-sm text-muted-foreground">
-                                            Estado: <span className={professionalProfile.colegiadoStatus === 'validated' ? 'text-green-600 font-medium' : ''}>{colegiadoStatusText}</span>
-                                        </p>
+                                        {colegiadoStatusText && (
+                                            <p className="text-sm text-muted-foreground">
+                                                Estado: <span className={professionalProfile.colegiadoStatus === 'validated' ? 'text-green-600 font-medium' : ''}>{colegiadoStatusText}</span>
+                                            </p>
+                                        )}
                                     </CardContent>
                                 </Card>
                             )}
@@ -714,7 +722,7 @@ ${requestDescription}
                     <Link href={`/marketplace/${product.id}`}>
                         <div className="aspect-video bg-muted flex items-center justify-center hover:scale-105 transition-transform">
                             {product.image ? (
-                            <img src={product.image} alt={product.title} className="object-cover w-full h-full"/>
+                            <Image src={product.image} alt={product.title} className="object-cover w-full h-full" width={400} height={225}/>
                             ) : (
                             <Package className="h-16 w-16 text-muted-foreground" />
                             )}
@@ -778,3 +786,4 @@ ${requestDescription}
     </>
   );
 }
+
