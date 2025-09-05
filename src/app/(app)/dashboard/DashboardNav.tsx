@@ -104,26 +104,26 @@ export default function DashboardNav() {
                     </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
+                <DropdownMenuItem asChild className="text-base">
                     <Link href={`/perfil/${user?.uid}`}>
                         <User className="mr-2 h-4 w-4" />
                         <span>Mi Perfil</span>
                     </Link>
                 </DropdownMenuItem>
-                 <DropdownMenuItem asChild>
+                 <DropdownMenuItem asChild className="text-base">
                     <Link href={`/mercado-profesionales/registro`}>
                         <Briefcase className="mr-2 h-4 w-4" />
                         <span>Editar Perfil Profesional</span>
                     </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem className="text-base">
                     <Settings className="mr-2 h-4 w-4" />
                     <span>Configuración</span>
                 </DropdownMenuItem>
                 {isAdmin && (
                 <>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
+                <DropdownMenuItem asChild className="text-base">
                 <Link href="/admin/aprobaciones">
                     <ShieldCheck className="mr-2 h-4 w-4" />
                     <span>Aprobaciones</span>
@@ -132,7 +132,7 @@ export default function DashboardNav() {
                 </>
                 )}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:bg-red-50 focus:text-red-700">
+                <DropdownMenuItem onClick={handleLogout} className="text-base text-red-600 focus:bg-red-50 focus:text-red-700">
                     <LogOut className="mr-2 h-4 w-4" />
                     Cerrar Sesión
                 </DropdownMenuItem>
