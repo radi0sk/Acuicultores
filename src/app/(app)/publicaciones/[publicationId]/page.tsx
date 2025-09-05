@@ -191,7 +191,7 @@ export default function PublicationDetailPage() {
                 </div>
             </header>
 
-            {publication.isOpenInvestigation && (
+            {publication.isOpenInvestigation && user && user.uid !== publication.authorId && (
                 <div className="bg-secondary/50 rounded-lg p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div className="flex items-start gap-3">
                          <BrainCircuit className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
