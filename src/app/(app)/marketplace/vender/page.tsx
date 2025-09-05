@@ -140,15 +140,15 @@ export default function MarketplaceSellPage() {
   }
 
   return (
-    <>
-         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+    <main>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
             <div>
                 <h2 className="font-headline text-3xl font-bold tracking-tight">Tus Publicaciones</h2>
                 <p className="text-muted-foreground font-body">Gestiona los productos que tienes a la venta.</p>
             </div>
             <div className="flex items-center gap-2">
                 <div className="relative w-full sm:w-auto">
-                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input 
                         placeholder="Buscar en tus publicaciones" 
                         className="pl-9"
@@ -159,7 +159,7 @@ export default function MarketplaceSellPage() {
                 <Button variant={viewMode === 'list' ? 'secondary' : 'outline'} size="icon" onClick={() => setViewMode('list')}>
                     <List className="h-4 w-4" />
                 </Button>
-                 <Button variant={viewMode === 'grid' ? 'secondary' : 'outline'} size="icon" onClick={() => setViewMode('grid')}>
+                    <Button variant={viewMode === 'grid' ? 'secondary' : 'outline'} size="icon" onClick={() => setViewMode('grid')}>
                     <LayoutGrid className="h-4 w-4" />
                 </Button>
             </div>
@@ -206,7 +206,7 @@ export default function MarketplaceSellPage() {
                         {filteredProducts.map((product) => (
                             <Card key={product.id} className="p-4">
                                 <div className="flex flex-col sm:flex-row gap-4">
-                                     <div className="w-full sm:w-32 h-32 bg-muted rounded-md flex items-center justify-center relative overflow-hidden">
+                                        <div className="w-full sm:w-32 h-32 bg-muted rounded-md flex items-center justify-center relative overflow-hidden">
                                         {product.image ? (
                                             <Image src={product.image} alt={product.title} layout="fill" className="object-cover" />
                                         ) : (
@@ -275,7 +275,7 @@ export default function MarketplaceSellPage() {
                         ))}
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                         {filteredProducts.map((product) => (
                             <Card key={product.id} className="flex flex-col overflow-hidden">
                                 <CardHeader className="p-0 relative">
@@ -351,6 +351,8 @@ export default function MarketplaceSellPage() {
                 )}
             </>
         )}
-    </>
+    </main>
   )
 }
+
+    

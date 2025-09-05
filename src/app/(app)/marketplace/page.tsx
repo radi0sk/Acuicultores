@@ -108,13 +108,13 @@ export default function MarketplaceBuyPage() {
 
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] lg:grid-cols-[320px_1fr] gap-8 items-start">
+    <>
         <aside className="hidden md:flex flex-col gap-4 sticky top-20">
-             <div className="px-3">
+             <div>
                  <h1 className="font-headline text-2xl font-bold">Marketplace</h1>
                  <p className="font-body text-muted-foreground text-sm">Explora productos y equipos.</p>
              </div>
-             <div className="px-3">
+             <div>
                 <Button asChild className="w-full font-headline">
                      <Link href="/marketplace/vender">
                         <Tag className="mr-2 h-4 w-4" />
@@ -122,7 +122,7 @@ export default function MarketplaceBuyPage() {
                     </Link>
                 </Button>
             </div>
-             <div className="px-3 space-y-4 border-t pt-4">
+             <div className="space-y-4 border-t pt-4">
                 <h2 className="font-headline font-semibold">Filtros</h2>
                 <div className="space-y-2">
                     <Label htmlFor="location" className="font-body">Ubicación</Label>
@@ -185,7 +185,7 @@ export default function MarketplaceBuyPage() {
                     ))}
                 </div>
             ) : filteredProducts.length > 0 ? (
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
                     {filteredProducts.map((product) => (
                     <Card key={product.id} className="overflow-hidden flex flex-col">
                         <CardHeader className="p-0">
@@ -237,6 +237,8 @@ export default function MarketplaceBuyPage() {
                 </div>
             )}
         </main>
-    </div>
+    </>
   )
 }
+
+    

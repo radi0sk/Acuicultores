@@ -95,7 +95,7 @@ export default function DashboardNav() {
           <Button
             key={item.href}
             asChild
-            variant={pathname === item.href ? 'secondary' : 'ghost'}
+            variant={pathname.startsWith(item.href) ? 'secondary' : 'ghost'}
             className="justify-start font-headline text-base"
           >
             <Link href={item.href}>
@@ -108,3 +108,5 @@ export default function DashboardNav() {
     </div>
   );
 }
+
+    
