@@ -88,8 +88,8 @@ export default function DashboardNav() {
                             <AvatarFallback>{userProfile.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                         </Avatar>
                         <div>
-                            <CardTitle className="font-headline text-lg md:text-xl">Hola, {getFirstName()}</CardTitle>
-                            <CardDescription className="text-sm md:text-base font-body">{userProfile.roles?.[0] || 'Miembro'}</CardDescription>
+                            <CardTitle className="font-headline text-2xl">Hola, {getFirstName()}</CardTitle>
+                            <CardDescription className="text-base font-body">{userProfile.roles?.[0] || 'Miembro'}</CardDescription>
                         </div>
                     </CardHeader>
                 </Card>
@@ -158,7 +158,7 @@ export default function DashboardNav() {
                 )}
               >
                 <Link href={item.href}>
-                  <item.icon className="h-6 w-6" />
+                  <item.icon className="h-8 w-8" />
                   {item.label}
                 </Link>
               </Button>
