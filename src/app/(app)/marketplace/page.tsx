@@ -201,14 +201,14 @@ export default function MarketplaceBuyPage() {
                                 )}
                             </div>
                         </CardHeader>
-                        <CardContent className="p-4 flex-grow">
-                        <CardTitle className="font-headline text-lg">{product.title}</CardTitle>
-                        <CardDescription className="font-body text-sm text-muted-foreground pt-1 flex items-center gap-1"><MapPin className="h-3 w-3" /> {product.location}</CardDescription>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                            {product.tags.map(tag => (
-                            <Badge key={tag} variant="secondary" className="font-body">{tag}</Badge>
-                            ))}
-                        </div>
+                        <CardContent className="p-4 flex-grow space-y-2">
+                            <CardTitle className="font-headline text-lg line-clamp-2 h-[2.5em]">{product.title}</CardTitle>
+                            <CardDescription className="font-body text-sm text-muted-foreground pt-1 flex items-center gap-1"><MapPin className="h-3 w-3" /> {product.location}</CardDescription>
+                            <div className="flex flex-wrap gap-2 mt-2 h-[2.75rem] overflow-hidden">
+                                {product.tags.map(tag => (
+                                <Badge key={tag} variant="secondary" className="font-body">{tag}</Badge>
+                                ))}
+                            </div>
                         </CardContent>
                         <CardFooter className="bg-secondary/30 p-4 flex justify-between items-center mt-auto">
                         {user ? (
