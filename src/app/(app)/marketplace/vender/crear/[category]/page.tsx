@@ -163,15 +163,15 @@ export default function NewItemPage() {
 
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start min-h-screen">
-       <div className="fixed top-4 left-4 z-20">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+       <div className="fixed top-6 left-6 z-20">
          <Button asChild variant="secondary">
             <Link href="/marketplace/vender"><ArrowLeft className="mr-2 h-4 w-4"/> Ir a Tus Publicaciones</Link>
         </Button>
       </div>
 
       {/* Left Column: Form */}
-      <div className="lg:col-span-1 bg-background rounded-lg p-4 md:p-6 overflow-y-auto h-screen no-scrollbar">
+      <div className="lg:col-span-1 bg-background rounded-lg p-4 md:p-0">
         <div className="space-y-6 pt-12">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="font-headline text-2xl font-bold">{categoryName}</h1>
@@ -225,7 +225,7 @@ export default function NewItemPage() {
                         </Button>
                         
                         {imageUrls.length > 0 && (
-                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 pt-2">
+                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-3 gap-2 pt-2">
                                 {imageUrls.map(url => (
                                     <div key={url} className="p-1 border rounded-md relative w-full aspect-square">
                                         <Image src={url} alt="Vista previa" layout="fill" className="rounded-md object-cover"/>
@@ -415,3 +415,5 @@ export default function NewItemPage() {
     </div>
   );
 }
+
+    
