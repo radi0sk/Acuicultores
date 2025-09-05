@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Tag, BarChart3, List, ArrowLeft, PlusCircle } from "lucide-react";
+import { Tag, BarChart3, List, ArrowLeft, PlusCircle, MessagesSquare } from "lucide-react";
 
 function VenderNav() {
     const pathname = usePathname();
@@ -13,6 +13,7 @@ function VenderNav() {
     const navLinks = [
         { href: "/marketplace/vender", label: "Tus Publicaciones", icon: List },
         { href: "/marketplace/vender/estadisticas", label: "Estadísticas", icon: BarChart3 },
+        { href: "/mensajes", label: "Mensajes", icon: MessagesSquare },
     ];
 
     return (
@@ -59,7 +60,9 @@ export default function VenderLayout({
   return (
     <>
         <VenderNav />
-        {children}
+        <main className="p-6">
+            {children}
+        </main>
     </>
   );
 }
