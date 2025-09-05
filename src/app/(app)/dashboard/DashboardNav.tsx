@@ -6,13 +6,14 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import {
+  Home,
   Briefcase,
   ShoppingCart,
   BookOpen,
   Newspaper,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 
@@ -41,6 +42,7 @@ function FishIcon(props: React.SVGProps<SVGSVGElement>) {
 
 
 const navItems = [
+    { href: "/dashboard", icon: Home, label: "Inicio" },
     { href: "/mercado-profesionales", icon: Briefcase, label: "Profesionales" },
     { href: "/marketplace", icon: ShoppingCart, label: "Marketplace" },
     { href: "/biblioteca", icon: BookOpen, label: "Biblioteca" },
@@ -93,7 +95,7 @@ export default function DashboardNav() {
           <Button
             key={item.href}
             asChild
-            variant={pathname.startsWith(item.href) ? 'secondary' : 'ghost'}
+            variant={pathname === item.href ? 'secondary' : 'ghost'}
             className="justify-start font-headline text-base"
           >
             <Link href={item.href}>
