@@ -88,8 +88,8 @@ export default function DashboardNav() {
                             <AvatarFallback>{userProfile.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                         </Avatar>
                         <div>
-                            <CardTitle className="font-headline text-3xl">Hola, {getFirstName()}</CardTitle>
-                            <CardDescription className="text-lg font-body">{userProfile.roles?.[0] || 'Miembro'}</CardDescription>
+                            <CardTitle className="font-headline text-4xl">Hola, {getFirstName()}</CardTitle>
+                            <CardDescription className="text-xl font-body">{userProfile.roles?.[0] || 'Miembro'}</CardDescription>
                         </div>
                     </CardHeader>
                 </Card>
@@ -150,7 +150,7 @@ export default function DashboardNav() {
                 variant="ghost"
                 className={cn(
                     "justify-start items-center gap-3 px-4 py-2.5 h-auto rounded-full",
-                    "text-xl hover:no-underline",
+                    "text-2xl hover:no-underline",
                     isActive 
                         ? "font-semibold text-foreground bg-neutral-100" 
                         : "font-normal text-neutral-700",
