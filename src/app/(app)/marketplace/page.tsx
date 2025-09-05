@@ -110,16 +110,20 @@ export default function MarketplaceBuyPage() {
   return (
     <>
         <aside className="hidden md:flex flex-col gap-4 sticky top-6">
-            <div>
-                <Button asChild className="w-full font-headline">
-                    <Link href="/marketplace/vender">
-                        <Tag className="mr-2 h-4 w-4" />
-                        Ir a Vender
-                    </Link>
-                </Button>
-            </div>
              <div className="space-y-4 border-t pt-4">
-                <h2 className="font-headline font-semibold px-3">Filtros</h2>
+                <div className="space-y-2 px-3">
+                    <Label htmlFor="search" className="font-body">Búsqueda</Label>
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                            id="search"
+                            placeholder="Buscar alimento, bombas..." 
+                            className="pl-9" 
+                            value={searchInputValue}
+                            onChange={(e) => setSearchInputValue(e.target.value)}
+                        />
+                    </div>
+                </div>
                 <div className="space-y-2 px-3">
                     <Label htmlFor="location" className="font-body">Ubicación</Label>
                     <div className="relative">
@@ -149,14 +153,6 @@ export default function MarketplaceBuyPage() {
                     </div>
                 </div>
              </div>
-             <div className="px-3 border-t pt-4">
-                 <Button asChild className="w-full font-headline" variant="outline">
-                     <Link href="/dashboard">
-                        <Home className="mr-2 h-4 w-4" />
-                        Ir al Inicio
-                    </Link>
-                </Button>
-            </div>
         </aside>
 
         {/* Right Content */}
@@ -165,15 +161,6 @@ export default function MarketplaceBuyPage() {
                 <div>
                     <h2 className="font-headline text-3xl font-bold tracking-tight">Marketplace</h2>
                     <p className="text-muted-foreground font-body">Explora productos y equipos.</p>
-                </div>
-                <div className="relative w-full">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                    <Input 
-                        placeholder="Buscar alimento, bombas, alevines..." 
-                        className="pl-10" 
-                        value={searchInputValue}
-                        onChange={(e) => setSearchInputValue(e.target.value)}
-                    />
                 </div>
              </div>
             
@@ -248,3 +235,5 @@ export default function MarketplaceBuyPage() {
     </>
   )
 }
+
+    
