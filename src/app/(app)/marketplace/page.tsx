@@ -174,8 +174,8 @@ export default function MarketplaceBuyPage() {
              </div>
             
             {loading ? (
-                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {[...Array(6)].map((_, i) => (
+                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {[...Array(8)].map((_, i) => (
                         <Card key={i}>
                             <Skeleton className="aspect-video w-full" />
                             <CardContent className="p-4">
@@ -189,7 +189,7 @@ export default function MarketplaceBuyPage() {
                     ))}
                 </div>
             ) : filteredProducts.length > 0 ? (
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {filteredProducts.map((product) => (
                     <Card key={product.id} className="overflow-hidden flex flex-col">
                         <CardHeader className="p-0">
