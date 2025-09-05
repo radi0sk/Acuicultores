@@ -3,7 +3,7 @@
 
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { User, onAuthStateChanged, setPersistence, browserLocalPersistence, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 import { clientAuth, clientDb } from '@/lib/firebase/client';
 import { useRouter, usePathname } from 'next/navigation';
 
@@ -62,54 +62,61 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const pathname = usePathname();
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(clientAuth, async (firebaseUser) => {
+        const unsubscribe = onAuthStateChanged(clientAuth, (firebaseUser) => {
             if (firebaseUser) {
-                const userDocRef = doc(clientDb, "users", firebaseUser.uid);
-                const userDocSnap = await getDoc(userDocRef);
-
-                let profileData: UserProfile;
-
-                if (userDocSnap.exists()) {
-                    profileData = userDocSnap.data() as UserProfile;
-                } else {
-                     profileData = {
-                        name: firebaseUser.displayName || 'Nuevo Usuario',
-                        email: firebaseUser.email || '',
-                        photoURL: firebaseUser.photoURL || '',
-                        roles: ['Productor'],
-                        createdAt: serverTimestamp(),
-                        followersCount: 0,
-                        followingCount: 0,
-                        followers: [],
-                        following: [],
-                        profileComplete: false, // New users start with an incomplete profile
-                    };
-                    await setDoc(userDocRef, profileData);
-                }
-                
                 setUser(firebaseUser);
-                setUserProfile(profileData);
                 
-                if(profileData.roles && profileData.roles.length > 0) {
-                    setActiveProfile(profileData.roles[0]);
-                }
-                
-                const profProfileRef = doc(clientDb, `users/${firebaseUser.uid}/professionalProfile/data`);
-                const profProfileSnap = await getDoc(profProfileRef);
-                if (profProfileSnap.exists()) {
-                    setProfessionalProfile(profProfileSnap.data() as ProfessionalProfile);
-                } else {
-                    setProfessionalProfile(null);
-                }
-
-                // Redirect logic for onboarding
-                if (!profileData.profileComplete) {
-                    if (pathname !== '/auth/completar-perfil') {
-                        router.push('/auth/completar-perfil');
+                // Set up real-time listener for user profile
+                const userDocRef = doc(clientDb, "users", firebaseUser.uid);
+                const unsubProfile = onSnapshot(userDocRef, async (docSnap) => {
+                    let profileData: UserProfile;
+                    if (docSnap.exists()) {
+                        profileData = docSnap.data() as UserProfile;
+                    } else {
+                        profileData = {
+                            name: firebaseUser.displayName || 'Nuevo Usuario',
+                            email: firebaseUser.email || '',
+                            photoURL: firebaseUser.photoURL || '',
+                            roles: ['Productor'],
+                            createdAt: serverTimestamp(),
+                            followersCount: 0,
+                            followingCount: 0,
+                            followers: [],
+                            following: [],
+                            profileComplete: false,
+                        };
+                        await setDoc(userDocRef, profileData);
                     }
-                } else if (pathname === '/auth' || pathname === '/auth/completar-perfil') {
-                    router.push('/dashboard');
-                }
+                    setUserProfile(profileData);
+                    if(profileData.roles && profileData.roles.length > 0) {
+                        setActiveProfile(profileData.roles[0]);
+                    }
+                    if (!profileData.profileComplete) {
+                        if (pathname !== '/auth/completar-perfil') {
+                            router.push('/auth/completar-perfil');
+                        }
+                    } else if (pathname === '/auth' || pathname === '/auth/completar-perfil') {
+                        router.push('/dashboard');
+                    }
+                });
+
+                // Set up real-time listener for professional profile
+                const profProfileRef = doc(clientDb, `users/${firebaseUser.uid}/professionalProfile/data`);
+                const unsubProfProfile = onSnapshot(profProfileRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        setProfessionalProfile(docSnap.data() as ProfessionalProfile);
+                    } else {
+                        setProfessionalProfile(null);
+                    }
+                });
+                
+                setIsLoading(false);
+                
+                // Return a cleanup function to unsubscribe from listeners on logout
+                return () => {
+                    unsubProfile();
+                    unsubProfProfile();
+                };
 
             } else {
                 setUser(null);
@@ -118,8 +125,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 if (!publicPaths.some(p => pathname.startsWith(p)) && pathname !== '/auth' && pathname !== '/') {
                    router.push('/auth');
                 }
+                setIsLoading(false);
             }
-            setIsLoading(false);
         });
 
         return () => unsubscribe();
