@@ -146,7 +146,7 @@ export default function DashboardNav() {
             key={item.href}
             asChild
             variant={pathname.startsWith(item.href) ? 'secondary' : 'ghost'}
-            className="justify-start font-headline text-base md:text-xl"
+            className="justify-start font-headline text-base md:text-2xl"
           >
             <Link href={item.href}>
               <item.icon className="mr-3 h-5 w-5" />
