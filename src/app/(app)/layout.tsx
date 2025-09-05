@@ -119,7 +119,7 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
                     </SheetContent>
                 </Sheet>
                 <MessagingDropdown />
-                <NotificationsDropdown />
+                
 
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -215,5 +215,3 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <AppLayoutContent>{children}</AppLayoutContent>
   )
 }
-
-    

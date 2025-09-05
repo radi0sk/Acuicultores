@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   LogOut,
   Settings,
+  Bell,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -54,6 +55,7 @@ const navItems = [
     { href: "/biblioteca", icon: BookOpen, label: "Biblioteca" },
     { href: "/publicaciones", icon: Newspaper, label: "Publicaciones" },
     { href: "/mensajes", icon: MessageSquare, label: "Mensajes" },
+    { href: "/notificaciones", icon: Bell, label: "Notificaciones" },
 ];
 
 export default function DashboardNav() {
@@ -168,4 +170,3 @@ export default function DashboardNav() {
     </div>
   );
 }
-
