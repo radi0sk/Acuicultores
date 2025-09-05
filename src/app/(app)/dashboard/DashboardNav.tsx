@@ -88,8 +88,8 @@ export default function DashboardNav() {
                             <AvatarFallback>{userProfile.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                         </Avatar>
                         <div>
-                            <CardTitle className="font-headline text-2xl">Hola, {getFirstName()}</CardTitle>
-                            <CardDescription className="text-xl font-body">{userProfile.roles?.[0] || 'Miembro'}</CardDescription>
+                            <CardTitle className="font-headline text-xl">Hola, {getFirstName()}</CardTitle>
+                            <CardDescription className="text-lg font-body">{userProfile.roles?.[0] || 'Miembro'}</CardDescription>
                         </div>
                     </CardHeader>
                 </Card>
