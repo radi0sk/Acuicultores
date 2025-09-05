@@ -48,7 +48,6 @@ const ProfessionalCardSkeleton = () => (
         <CardFooter className="p-6 pt-0">
             <div className="flex gap-2 w-full">
                 <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
             </div>
         </CardFooter>
     </Card>
@@ -59,9 +58,6 @@ export default function ProfessionalsPage() {
   const { user, professionalProfile: currentUserProfessionalProfile } = useAuth();
   const [professionals, setProfessionals] = useState<ProfessionalProfile[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const [searchQuery, setSearchQuery] = useState('');
-  const [specialtyFilter, setSpecialtyFilter] = useState('all');
 
   useEffect(() => {
     setLoading(true);
@@ -100,23 +96,6 @@ export default function ProfessionalsPage() {
     return () => unsubscribe();
   }, []);
 
-  const specialties = useMemo(() => ["all", ...Array.from(new Set(professionals.map(p => p.specialization)))], [professionals]);
-
-  const filteredProfessionals = useMemo(() => {
-    return professionals.filter(prof => {
-      const lowercasedQuery = searchQuery.toLowerCase();
-      
-      const searchMatch = searchQuery.trim() === '' ||
-                            prof.name.toLowerCase().includes(lowercasedQuery) ||
-                            prof.specialization.toLowerCase().includes(lowercasedQuery) ||
-                            (prof.experiences && prof.experiences.some(exp => exp.role.toLowerCase().includes(lowercasedQuery)));
-
-      const specialtyMatch = specialtyFilter === 'all' || prof.specialization === specialtyFilter;
-
-      return searchMatch && specialtyMatch;
-    })
-  }, [searchQuery, specialtyFilter, professionals]);
-
   const hasProfessionalProfile = currentUserProfessionalProfile && Object.keys(currentUserProfessionalProfile).length > 0;
 
   return (
@@ -126,47 +105,12 @@ export default function ProfessionalsPage() {
           <h1 className="font-headline text-3xl font-bold tracking-tight">Mercado de Profesionales</h1>
           <p className="text-muted-foreground font-body">Encuentra el experto que necesitas para llevar tu producción al siguiente nivel.</p>
         </div>
-        {user && (
-            <Button asChild className="font-headline text-base">
-                <Link href="/mercado-profesionales/registro">
-                    {hasProfessionalProfile ? <Edit className="mr-2 h-4 w-4" /> : <UserPlus className="mr-2 h-4 w-4" />}
-                    {hasProfessionalProfile ? "Editar Perfil Profesional" : "Regístrate como Profesional"}
-                </Link>
-            </Button>
-        )}
       </div>
-
-      <div className="flex flex-col gap-4 rounded-lg border bg-card p-4 sm:flex-row sm:items-center">
-        <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input 
-                placeholder="Buscar por nombre, especialidad o habilidad..." 
-                className="pl-10"
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-            />
-        </div>
-        <div className="flex gap-4">
-            <Select onValueChange={setSpecialtyFilter} defaultValue="all" disabled={loading}>
-                <SelectTrigger className="w-full sm:w-[220px] font-headline">
-                    <SelectValue placeholder="Especialidad" />
-                </SelectTrigger>
-                <SelectContent>
-                    {specialties.map(spec => (
-                      <SelectItem key={spec} value={spec} className="font-body">
-                        {spec === 'all' ? 'Todas las especialidades' : spec}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
-        </div>
-      </div>
-
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {loading ? (
             Array.from({ length: 6 }).map((_, index) => <ProfessionalCardSkeleton key={index} />)
-        ) : filteredProfessionals.length > 0 ? (
-            filteredProfessionals.map((prof) => (
+        ) : professionals.length > 0 ? (
+            professionals.map((prof) => (
             <Card key={prof.id} className="flex flex-col hover:border-primary transition-colors">
                 <CardHeader className="p-6 pb-0">
                   <Link href={`/perfil/${prof.id}`} className="flex flex-row items-start gap-4 group">
