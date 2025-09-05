@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Globe, MapPin, Package, Truck, Rocket, UploadCloud, X, ArrowLeft } from "lucide-react";
+import { Globe, MapPin, Package, Truck, Rocket, UploadCloud, X, ArrowLeft, Sparkles } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
@@ -24,6 +24,7 @@ import Image from 'next/image';
 import { departments, municipalities } from "@/lib/guatemala-data";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Link from 'next/link';
+import { suggestTags } from "@/ai/flows/suggest-tags-flow";
 
 
 const categoryMap: { [key: string]: string } = {
@@ -56,6 +57,7 @@ export default function NewItemPage() {
   const [promote, setPromote] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isSuggestingTags, setIsSuggestingTags] = useState(false);
   
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   
@@ -161,6 +163,29 @@ export default function NewItemPage() {
     }
   };
 
+  const handleSuggestTags = async () => {
+        if (!title.trim() && !description.trim()) {
+            toast({ variant: 'destructive', title: 'Contenido insuficiente', description: 'Escribe un título y una descripción para sugerir etiquetas.' });
+            return;
+        }
+
+        setIsSuggestingTags(true);
+        try {
+            const result = await suggestTags({ title, content: description });
+            if (result.tags && result.tags.length > 0) {
+                setTags(result.tags.join(', '));
+                toast({ title: '¡Etiquetas sugeridas!', description: 'Se han rellenado las etiquetas con las sugerencias de la IA.' });
+            } else {
+                toast({ title: 'No se encontraron sugerencias', description: 'No pudimos generar etiquetas para este contenido.' });
+            }
+        } catch (error) {
+            console.error('Error suggesting tags:', error);
+            toast({ variant: 'destructive', title: 'Error de IA', description: 'Hubo un problema al generar las etiquetas.' });
+        } finally {
+            setIsSuggestingTags(false);
+        }
+    }
+
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
@@ -257,7 +282,12 @@ export default function NewItemPage() {
                      <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="tags" className="font-headline">Etiquetas</Label>
-                            <Input id="tags" placeholder="Tilapia, Alimento, Nutrición" value={tags} onChange={(e) => setTags(e.target.value)} />
+                             <div className="flex items-center gap-2">
+                                <Input id="tags" placeholder="Tilapia, Alimento" value={tags} onChange={(e) => setTags(e.target.value)} />
+                                <Button type="button" variant="outline" size="icon" onClick={handleSuggestTags} disabled={isSuggestingTags}>
+                                    <Sparkles className={`h-4 w-4 ${isSuggestingTags ? 'animate-pulse' : ''}`} />
+                                </Button>
+                            </div>
                             <p className="text-xs text-muted-foreground font-body">Separa las etiquetas con comas.</p>
                         </div>
                          <div className="space-y-2">
@@ -415,5 +445,3 @@ export default function NewItemPage() {
     </div>
   );
 }
-
-    
