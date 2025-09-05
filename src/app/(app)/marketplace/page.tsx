@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -110,7 +109,14 @@ export default function MarketplaceBuyPage() {
   return (
     <>
         <aside className="hidden md:flex flex-col gap-4 sticky top-6">
+             <Button asChild>
+                <Link href="/marketplace/vender">
+                    Gestionar mis Ventas
+                </Link>
+             </Button>
+
              <div className="space-y-4 border-t pt-4">
+                <h3 className="font-headline px-3 text-lg font-semibold">Filtros</h3>
                 <div className="space-y-2 px-3">
                     <Label htmlFor="search" className="font-body">Búsqueda</Label>
                     <div className="relative">
@@ -235,5 +241,3 @@ export default function MarketplaceBuyPage() {
     </>
   )
 }
-
-    
