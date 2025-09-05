@@ -3,7 +3,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { HelpCircle, List, Package, Fish, Wrench, Tag } from "lucide-react";
+import { HelpCircle, List, Package, Fish, Wrench, Tag, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 const publicationTypes = [
@@ -34,7 +34,12 @@ export default function CreatePublicationPage() {
   return (
     <main>
       <div className="flex flex-col gap-4">
-        <h2 className="font-headline text-3xl font-bold tracking-tight">Elegir tipo de publicación</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="font-headline text-3xl font-bold tracking-tight">Elegir tipo de publicación</h2>
+          <Button asChild variant="outline">
+            <Link href="/marketplace/vender"><ArrowLeft className="mr-2 h-4 w-4"/> Ir a Tus Publicaciones</Link>
+          </Button>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {publicationTypes.map((type) => (
             <Link key={type.title} href={type.href} className="block h-full group">
@@ -58,5 +63,3 @@ export default function CreatePublicationPage() {
     </main>
   );
 }
-
-    
