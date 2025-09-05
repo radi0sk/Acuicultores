@@ -212,9 +212,6 @@ export default function EditItemPage() {
       <div className="bg-background rounded-lg p-4 md:p-0">
         <div className="flex justify-between items-center mb-6">
             <h1 className="font-headline text-2xl font-bold">Editar Publicación</h1>
-             <Button asChild variant="outline">
-                <Link href="/marketplace/vender"><ArrowLeft className="mr-2 h-4 w-4"/> Ir a Tus Publicaciones</Link>
-            </Button>
         </div>
         
         <div className="flex items-center gap-3 mb-4 border rounded-lg p-3">
@@ -374,8 +371,13 @@ export default function EditItemPage() {
       </div>
 
       {/* Right Column: Preview */}
-      <div className="hidden lg:block sticky top-24">
-         <Label className="font-headline text-muted-foreground">Vista previa</Label>
+      <div className="hidden lg:block sticky top-6">
+         <div className="flex justify-between items-center mb-4">
+            <Label className="font-headline text-muted-foreground">Vista previa</Label>
+            <Button asChild variant="outline">
+                <Link href="/marketplace/vender"><ArrowLeft className="mr-2 h-4 w-4"/> Ir a Tus Publicaciones</Link>
+            </Button>
+         </div>
          <div className="mt-2 p-6 rounded-xl bg-secondary/50 flex flex-col items-center justify-center text-center">
             <Card className="w-full max-w-sm overflow-hidden shadow-lg">
                  <CardHeader className="p-0">
