@@ -5,15 +5,16 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
-
 import {
-  Home,
   Briefcase,
   ShoppingCart,
   BookOpen,
   Newspaper,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
 
 function FishIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -40,7 +41,6 @@ function FishIcon(props: React.SVGProps<SVGSVGElement>) {
 
 
 const navItems = [
-    { href: "/dashboard", icon: Home, label: "Inicio" },
     { href: "/mercado-profesionales", icon: Briefcase, label: "Profesionales" },
     { href: "/marketplace", icon: ShoppingCart, label: "Marketplace" },
     { href: "/biblioteca", icon: BookOpen, label: "Biblioteca" },
@@ -68,12 +68,32 @@ export default function DashboardNav() {
             <span className="font-headline text-2xl">AcuicultoresGT</span>
         </Link>
       
+      {pathname === '/dashboard' && userProfile && (
+        <Card>
+            <CardHeader className="p-4 flex flex-row items-center gap-4">
+                <Avatar className="h-12 w-12">
+                    <AvatarImage src={user?.photoURL || undefined} alt={userProfile.name} data-ai-hint="person portrait" />
+                    <AvatarFallback>{userProfile.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                </Avatar>
+                <div>
+                    <CardTitle className="font-headline text-lg">Hola, {getFirstName()}</CardTitle>
+                    <CardDescription className="text-xs font-body">Bienvenido/a de nuevo</CardDescription>
+                </div>
+            </CardHeader>
+            <CardFooter className="p-4 pt-0">
+                <Button asChild className="w-full" variant="outline" size="sm">
+                    <Link href={`/perfil/${user?.uid}`}>Ver mi perfil</Link>
+                </Button>
+            </CardFooter>
+        </Card>
+      )}
+      
       <nav className="flex flex-col gap-1">
         {navItems.map((item) => (
           <Button
             key={item.href}
             asChild
-            variant={pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/dashboard') ? 'secondary' : 'ghost'}
+            variant={pathname.startsWith(item.href) ? 'secondary' : 'ghost'}
             className="justify-start font-headline text-base"
           >
             <Link href={item.href}>
