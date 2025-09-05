@@ -407,8 +407,8 @@ export default function MessagesPage() {
 
   return (
     <>
-    <div className="grid grid-cols-1 md:grid-cols-[minmax(300px,380px)_1fr] border rounded-lg overflow-hidden bg-card" style={{height: 'calc(100vh - 10rem)'}}>
-      <div className="flex flex-col border-r bg-background/50 h-full">
+    <div className="grid grid-cols-1 md:grid-cols-[minmax(300px,380px)_1fr] border rounded-lg overflow-hidden bg-card h-[calc(100vh_-_8.5rem)]">
+      <div className="flex flex-col border-r bg-background/50 h-full overflow-hidden">
         <div className="p-4 border-b h-16 flex items-center justify-between flex-shrink-0">
           <h1 className="font-headline text-2xl font-bold tracking-tight">Chats</h1>
         </div>
@@ -419,7 +419,6 @@ export default function MessagesPage() {
           </div>
         </div>
         <div className="flex-1 overflow-y-auto">
-            <ScrollArea className="h-full">
             {loadingConversations ? (
                 <div className="p-3 space-y-3">
                     {[...Array(5)].map((_, i) => (
@@ -469,11 +468,10 @@ export default function MessagesPage() {
                 })}
             </div>
             )}
-            </ScrollArea>
         </div>
       </div>
 
-      <div className="flex flex-col bg-secondary/20 h-full">
+      <div className="flex flex-col bg-secondary/20 h-full overflow-hidden">
         {selectedConversation ? (
                 <div className="flex flex-col h-full w-full">
                     <div className="flex flex-row items-center justify-between gap-3 p-3 border-b bg-background h-16 flex-shrink-0">
@@ -494,7 +492,6 @@ export default function MessagesPage() {
                     </div>
 
                     <div className="flex-1 overflow-y-auto">
-                        <ScrollArea className="h-full">
                                <div className="p-6">
                                    <div className="flex flex-col gap-4">
                                        {loadingMessages ? (
@@ -552,7 +549,6 @@ export default function MessagesPage() {
                                         <div ref={messagesEndRef} />
                                    </div>
                                </div>
-                        </ScrollArea>
                     </div>
 
                     <div className="p-4 border-t bg-background flex-shrink-0">
