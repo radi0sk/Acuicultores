@@ -14,7 +14,7 @@ import { clientDb } from "@/lib/firebase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { departments, municipalities } from "@/lib/guatemala-data";
+import { departments } from "@/lib/guatemala-data";
 
 interface Product {
     id: string;
@@ -44,7 +44,6 @@ export default function MarketplaceBuyPage() {
   // State for immediate input value
   const [searchInputValue, setSearchInputValue] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("all-departments");
-  const [municipalityFilter, setMunicipalityFilter] = useState("all-municipalities");
 
   // Debounced state for filtering
   const [searchQuery, setSearchQuery] = useState("");
@@ -92,10 +91,6 @@ export default function MarketplaceBuyPage() {
             if (departmentFilter === 'all-departments') return true;
             const productLocation = product.location.toLowerCase();
             const department = departmentFilter.toLowerCase();
-            if (municipalityFilter !== 'all-municipalities') {
-                const municipality = municipalityFilter.toLowerCase();
-                return productLocation.includes(municipality) && productLocation.includes(department);
-            }
             return productLocation.includes(department);
         };
 
@@ -103,7 +98,7 @@ export default function MarketplaceBuyPage() {
 
         return searchMatch && locationMatch() && categoryMatch;
     });
-  }, [allProducts, searchQuery, departmentFilter, municipalityFilter, activeCategory]);
+  }, [allProducts, searchQuery, departmentFilter, activeCategory]);
 
 
   return (
@@ -134,18 +129,11 @@ export default function MarketplaceBuyPage() {
                 <div className="space-y-2 px-3">
                     <Label className="font-body">Ubicación</Label>
                     <div className="grid grid-cols-1 gap-2">
-                        <Select value={departmentFilter} onValueChange={val => { setDepartmentFilter(val); setMunicipalityFilter('all-municipalities'); }}>
+                        <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
                             <SelectTrigger><SelectValue placeholder="Departamento"/></SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all-departments">Todos los Departamentos</SelectItem>
                                 {departments.map(dep => <SelectItem key={dep} value={dep}>{dep}</SelectItem>)}
-                            </SelectContent>
-                        </Select>
-                        <Select value={municipalityFilter} onValueChange={setMunicipalityFilter} disabled={departmentFilter === 'all-departments'}>
-                            <SelectTrigger><SelectValue placeholder="Municipio"/></SelectTrigger>
-                            <SelectContent>
-                                 <SelectItem value="all-municipalities">Todos los Municipios</SelectItem>
-                                {(municipalities[departmentFilter] || []).map(mun => <SelectItem key={mun} value={mun}>{mun}</SelectItem>)}
                             </SelectContent>
                         </Select>
                     </div>
