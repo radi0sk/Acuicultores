@@ -140,20 +140,30 @@ export default function DashboardNav() {
         </DropdownMenu>
       )}
       
-      <nav className="flex flex-col gap-1">
-        {navItems.map((item) => (
-          <Button
-            key={item.href}
-            asChild
-            variant={pathname.startsWith(item.href) ? 'secondary' : 'ghost'}
-            className="justify-start font-headline text-base md:text-2xl"
-          >
-            <Link href={item.href}>
-              <item.icon className="mr-3 h-5 w-5" />
-              {item.label}
-            </Link>
-          </Button>
-        ))}
+      <nav className="flex flex-col gap-y-1.5">
+        {navItems.map((item) => {
+            const isActive = pathname.startsWith(item.href);
+            return (
+              <Button
+                key={item.href}
+                asChild
+                variant="ghost"
+                className={cn(
+                    "justify-start items-center gap-3 px-4 py-2.5 h-auto rounded-full",
+                    "text-base hover:no-underline",
+                    isActive 
+                        ? "font-semibold text-foreground bg-neutral-100" 
+                        : "font-normal text-neutral-700",
+                    "hover:bg-neutral-100"
+                )}
+              >
+                <Link href={item.href}>
+                  <item.icon className="h-5 w-5" />
+                  {item.label}
+                </Link>
+              </Button>
+            )
+        })}
       </nav>
     </div>
   );
