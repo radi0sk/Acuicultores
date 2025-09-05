@@ -129,7 +129,7 @@ export default function StatisticsPage() {
     }
 
   return (
-    <div className="flex flex-col gap-6">
+    <main className="flex flex-col gap-6">
         <div>
             <h2 className="font-headline text-3xl font-bold tracking-tight">Estadísticas de Vendedor</h2>
             <p className="text-muted-foreground font-body">Un resumen del rendimiento de tus publicaciones en el marketplace.</p>
@@ -277,6 +277,6 @@ export default function StatisticsPage() {
             </CardContent>
             </Card>
         </div>
-    </div>
+    </main>
   );
 }
