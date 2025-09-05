@@ -162,6 +162,10 @@ export default function MarketplaceBuyPage() {
         {/* Right Content */}
         <main>
              <div className="flex flex-col gap-2 mb-6">
+                <div>
+                    <h2 className="font-headline text-3xl font-bold tracking-tight">Marketplace</h2>
+                    <p className="text-muted-foreground font-body">Explora productos y equipos.</p>
+                </div>
                 <div className="relative w-full">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                     <Input 
