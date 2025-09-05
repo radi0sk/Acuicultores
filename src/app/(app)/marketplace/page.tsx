@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Search, MapPin, Tag, Package, Home } from "lucide-react"
+import { Search, MapPin, Tag } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/hooks/useAuth";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,8 @@ import { collection, query, where, onSnapshot, Timestamp } from "firebase/firest
 import { clientDb } from "@/lib/firebase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { departments, municipalities } from "@/lib/guatemala-data";
 
 interface Product {
     id: string;
@@ -41,11 +43,11 @@ export default function MarketplaceBuyPage() {
   
   // State for immediate input value
   const [searchInputValue, setSearchInputValue] = useState("");
-  const [locationInputValue, setLocationInputValue] = useState("");
+  const [departmentFilter, setDepartmentFilter] = useState("");
+  const [municipalityFilter, setMunicipalityFilter] = useState("");
 
   // Debounced state for filtering
   const [searchQuery, setSearchQuery] = useState("");
-  const [locationFilter, setLocationFilter] = useState("");
   
   const [activeCategory, setActiveCategory] = useState("all");
 
@@ -78,16 +80,6 @@ export default function MarketplaceBuyPage() {
     };
   }, [searchInputValue]);
 
-  // Debounce effect for location filter
-  useEffect(() => {
-    const handler = setTimeout(() => {
-        setLocationFilter(locationInputValue);
-    }, 300); // 300ms delay
-
-    return () => {
-        clearTimeout(handler);
-    };
-  }, [locationInputValue]);
 
   const filteredProducts = useMemo(() => {
     return allProducts.filter(product => {
@@ -96,14 +88,22 @@ export default function MarketplaceBuyPage() {
                               product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                               product.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
         
-        const locationMatch = locationFilter.trim() === '' ||
-                                product.location.toLowerCase().includes(locationFilter.toLowerCase());
+        const locationMatch = () => {
+            if (!departmentFilter) return true;
+            const productLocation = product.location.toLowerCase();
+            const department = departmentFilter.toLowerCase();
+            const municipality = municipalityFilter.toLowerCase();
+            if (municipality) {
+                return productLocation.includes(municipality) && productLocation.includes(department);
+            }
+            return productLocation.includes(department);
+        };
 
         const categoryMatch = activeCategory === 'all' || product.category === activeCategory;
 
-        return searchMatch && locationMatch && categoryMatch;
+        return searchMatch && locationMatch() && categoryMatch;
     });
-  }, [allProducts, searchQuery, locationFilter, activeCategory]);
+  }, [allProducts, searchQuery, departmentFilter, municipalityFilter, activeCategory]);
 
 
   return (
@@ -132,16 +132,22 @@ export default function MarketplaceBuyPage() {
                     </div>
                 </div>
                 <div className="space-y-2 px-3">
-                    <Label htmlFor="location" className="font-body">Ubicación</Label>
-                    <div className="relative">
-                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          id="location" 
-                          placeholder="Mixco, Guatemala" 
-                          className="pl-9" 
-                          value={locationInputValue} 
-                          onChange={(e) => setLocationInputValue(e.target.value)}
-                        />
+                    <Label className="font-body">Ubicación</Label>
+                    <div className="grid grid-cols-1 gap-2">
+                        <Select value={departmentFilter} onValueChange={val => { setDepartmentFilter(val); setMunicipalityFilter(''); }}>
+                            <SelectTrigger><SelectValue placeholder="Departamento"/></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="">Todos</SelectItem>
+                                {departments.map(dep => <SelectItem key={dep} value={dep}>{dep}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                        <Select value={municipalityFilter} onValueChange={setMunicipalityFilter} disabled={!departmentFilter}>
+                            <SelectTrigger><SelectValue placeholder="Municipio"/></SelectTrigger>
+                            <SelectContent>
+                                 <SelectItem value="">Todos</SelectItem>
+                                {(municipalities[departmentFilter] || []).map(mun => <SelectItem key={mun} value={mun}>{mun}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
                     </div>
                 </div>
                 <div className="space-y-2">
@@ -196,7 +202,7 @@ export default function MarketplaceBuyPage() {
                                     {product.image || (product.images && product.images[0]) ? (
                                         <Image src={(product.image || product.images![0])!} alt={product.title} layout="fill" className="object-cover" />
                                     ) : (
-                                        <Package className="h-16 w-16 text-muted-foreground" />
+                                        <Tag className="h-16 w-16 text-muted-foreground" />
                                     )}
                                 </div>
                              </Link>
