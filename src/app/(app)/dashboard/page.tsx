@@ -30,7 +30,6 @@ import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
-import DashboardNav from "./DashboardNav";
 import QuickAccess from "./QuickAccess";
 
 const POSTS_PER_PAGE = 5;
@@ -744,16 +743,9 @@ export default function DashboardPage() {
   
   return (
     <>
-      <div className="grid h-screen grid-cols-1 md:grid-cols-4">
-          {/* Left Column (Nav) - 25% */}
-          <aside className="hidden h-full overflow-y-auto md:col-span-1 md:block no-scrollbar">
-              <div className="sticky top-0 p-6">
-                  <DashboardNav />
-              </div>
-          </aside>
-
-          {/* Center Column (Forum) - 50% */}
-          <main className="h-full overflow-y-auto p-6 md:col-span-2 no-scrollbar">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_340px] gap-8">
+          {/* Center Column (Forum) */}
+          <main className="space-y-6">
               <Card>
                   <CardHeader>
                       <div className="flex items-start gap-4">
@@ -849,7 +841,7 @@ export default function DashboardPage() {
                   </CardHeader>
               </Card>
               
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mt-6">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                   <TabsList>
                       <TabsTrigger value="recent" className="font-headline">Más Recientes</TabsTrigger>
                       <TabsTrigger value="popular" className="font-headline">Más Populares</TabsTrigger>
@@ -880,9 +872,9 @@ export default function DashboardPage() {
               </Tabs>
           </main>
 
-          {/* Right Column (Widgets) - 25% */}
-          <aside className="hidden h-full overflow-y-auto p-6 md:col-span-1 md:block no-scrollbar">
-               <div className="sticky top-0 z-10 bg-background pb-6">
+          {/* Right Column (Widgets) */}
+          <aside className="hidden md:block space-y-6">
+               <div className="sticky top-24 z-10 bg-background pb-6">
                   <Card>
                       <CardHeader>
                           <CardTitle className="font-headline">Búsqueda Global</CardTitle>
@@ -895,7 +887,7 @@ export default function DashboardPage() {
                       </CardContent>
                   </Card>
               </div>
-              <div className="space-y-6">
+              <div className="space-y-6 sticky top-[10rem]">
                   <QuickAccess />
                   <Card>
                       <CardHeader>
