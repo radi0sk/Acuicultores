@@ -744,16 +744,16 @@ export default function DashboardPage() {
   
   return (
     <>
-    <div className="grid grid-cols-1 md:grid-cols-[25%_50%_25%] gap-6 h-full">
+    <div className="grid h-full grid-cols-1 gap-6 md:grid-cols-4">
         {/* Left Column (Nav) */}
-        <aside className="hidden md:block h-full overflow-y-auto no-scrollbar">
+        <aside className="hidden h-full overflow-y-auto no-scrollbar md:col-span-1 md:block">
             <div className="sticky top-0 p-6">
                 <DashboardNav />
             </div>
         </aside>
 
         {/* Center Column (Forum) */}
-        <main className="col-span-1 md:col-span-1 space-y-6 h-full overflow-y-auto no-scrollbar p-6">
+        <main className="h-full overflow-y-auto no-scrollbar p-6 md:col-span-2">
             <Card>
                 <CardHeader>
                     <div className="flex items-start gap-4">
@@ -849,7 +849,7 @@ export default function DashboardPage() {
                 </CardHeader>
             </Card>
             
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mt-6">
                 <TabsList>
                     <TabsTrigger value="recent" className="font-headline">Más Recientes</TabsTrigger>
                     <TabsTrigger value="popular" className="font-headline">Más Populares</TabsTrigger>
@@ -881,8 +881,8 @@ export default function DashboardPage() {
         </main>
 
         {/* Right Column (Widgets) */}
-        <aside className="hidden md:block h-full overflow-y-auto no-scrollbar">
-             <div className="sticky top-0 p-6 bg-background z-10">
+        <aside className="hidden h-full overflow-y-auto no-scrollbar md:col-span-1 md:block">
+             <div className="sticky top-0 z-10 bg-background p-6">
                 <Card>
                     <CardHeader>
                         <CardTitle className="font-headline">Búsqueda Global</CardTitle>
@@ -1048,3 +1048,5 @@ export default function DashboardPage() {
     </>
   );
 }
+
+    
