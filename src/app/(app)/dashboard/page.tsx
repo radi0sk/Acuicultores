@@ -744,7 +744,7 @@ export default function DashboardPage() {
   
   return (
     <>
-      <div className="grid h-screen grid-cols-1 gap-6 md:grid-cols-4">
+      <div className="grid h-screen grid-cols-1 md:grid-cols-4">
           {/* Left Column (Nav) - 25% */}
           <aside className="hidden h-full overflow-y-auto md:col-span-1 md:block no-scrollbar">
               <div className="sticky top-0 p-6">
@@ -881,8 +881,8 @@ export default function DashboardPage() {
           </main>
 
           {/* Right Column (Widgets) - 25% */}
-          <aside className="hidden h-full overflow-y-auto md:col-span-1 md:block no-scrollbar">
-               <div className="sticky top-0 z-10 bg-background p-6">
+          <aside className="hidden h-full overflow-y-auto p-6 md:col-span-1 md:block no-scrollbar">
+               <div className="sticky top-0 z-10 bg-background pb-6">
                   <Card>
                       <CardHeader>
                           <CardTitle className="font-headline">Búsqueda Global</CardTitle>
@@ -895,7 +895,7 @@ export default function DashboardPage() {
                       </CardContent>
                   </Card>
               </div>
-              <div className="space-y-6 px-6">
+              <div className="space-y-6">
                   <QuickAccess />
                   <Card>
                       <CardHeader>
@@ -1048,5 +1048,3 @@ export default function DashboardPage() {
     </>
   );
 }
-
-    
