@@ -43,8 +43,8 @@ export default function MarketplaceBuyPage() {
   
   // State for immediate input value
   const [searchInputValue, setSearchInputValue] = useState("");
-  const [departmentFilter, setDepartmentFilter] = useState("");
-  const [municipalityFilter, setMunicipalityFilter] = useState("");
+  const [departmentFilter, setDepartmentFilter] = useState("all-departments");
+  const [municipalityFilter, setMunicipalityFilter] = useState("all-municipalities");
 
   // Debounced state for filtering
   const [searchQuery, setSearchQuery] = useState("");
@@ -89,11 +89,11 @@ export default function MarketplaceBuyPage() {
                               product.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
         
         const locationMatch = () => {
-            if (!departmentFilter) return true;
+            if (departmentFilter === 'all-departments') return true;
             const productLocation = product.location.toLowerCase();
             const department = departmentFilter.toLowerCase();
-            const municipality = municipalityFilter.toLowerCase();
-            if (municipality) {
+            if (municipalityFilter !== 'all-municipalities') {
+                const municipality = municipalityFilter.toLowerCase();
                 return productLocation.includes(municipality) && productLocation.includes(department);
             }
             return productLocation.includes(department);
@@ -134,17 +134,17 @@ export default function MarketplaceBuyPage() {
                 <div className="space-y-2 px-3">
                     <Label className="font-body">Ubicación</Label>
                     <div className="grid grid-cols-1 gap-2">
-                        <Select value={departmentFilter} onValueChange={val => { setDepartmentFilter(val); setMunicipalityFilter(''); }}>
+                        <Select value={departmentFilter} onValueChange={val => { setDepartmentFilter(val); setMunicipalityFilter('all-municipalities'); }}>
                             <SelectTrigger><SelectValue placeholder="Departamento"/></SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="">Todos</SelectItem>
+                                <SelectItem value="all-departments">Todos los Departamentos</SelectItem>
                                 {departments.map(dep => <SelectItem key={dep} value={dep}>{dep}</SelectItem>)}
                             </SelectContent>
                         </Select>
-                        <Select value={municipalityFilter} onValueChange={setMunicipalityFilter} disabled={!departmentFilter}>
+                        <Select value={municipalityFilter} onValueChange={setMunicipalityFilter} disabled={departmentFilter === 'all-departments'}>
                             <SelectTrigger><SelectValue placeholder="Municipio"/></SelectTrigger>
                             <SelectContent>
-                                 <SelectItem value="">Todos</SelectItem>
+                                 <SelectItem value="all-municipalities">Todos los Municipios</SelectItem>
                                 {(municipalities[departmentFilter] || []).map(mun => <SelectItem key={mun} value={mun}>{mun}</SelectItem>)}
                             </SelectContent>
                         </Select>
