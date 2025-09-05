@@ -408,7 +408,7 @@ export default function ProfessionalRegistrationPage() {
 
       // 2. Update professional profile
       const professionalProfileData = {
-        professionalPhotoURL,
+        professionalPhotoURL: professionalPhotoURL || null,
         professionalType,
         specialization,
         aboutMe,
@@ -784,3 +784,5 @@ export default function ProfessionalRegistrationPage() {
     </form>
   );
 }
+
+    
