@@ -104,26 +104,26 @@ export default function DashboardNav() {
                     </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild className="text-base">
+                <DropdownMenuItem asChild className="text-lg">
                     <Link href={`/perfil/${user?.uid}`}>
                         <User className="mr-2 h-5 w-5" />
                         <span>Mi Perfil</span>
                     </Link>
                 </DropdownMenuItem>
-                 <DropdownMenuItem asChild className="text-base">
+                 <DropdownMenuItem asChild className="text-lg">
                     <Link href={`/mercado-profesionales/registro`}>
                         <Briefcase className="mr-2 h-5 w-5" />
                         <span>Editar Perfil Profesional</span>
                     </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="text-base">
+                <DropdownMenuItem className="text-lg">
                     <Settings className="mr-2 h-5 w-5" />
                     <span>Configuración</span>
                 </DropdownMenuItem>
                 {isAdmin && (
                 <>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild className="text-base">
+                <DropdownMenuItem asChild className="text-lg">
                 <Link href="/admin/aprobaciones">
                     <ShieldCheck className="mr-2 h-5 w-5" />
                     <span>Aprobaciones</span>
@@ -132,7 +132,7 @@ export default function DashboardNav() {
                 </>
                 )}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="text-base text-red-600 focus:bg-red-50 focus:text-red-700">
+                <DropdownMenuItem onClick={handleLogout} className="text-lg text-red-600 focus:bg-red-50 focus:text-red-700">
                     <LogOut className="mr-2 h-5 w-5" />
                     Cerrar Sesión
                 </DropdownMenuItem>
@@ -168,3 +168,4 @@ export default function DashboardNav() {
     </div>
   );
 }
+
