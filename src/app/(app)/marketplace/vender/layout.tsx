@@ -16,6 +16,11 @@ function VenderNav() {
         { href: "/mensajes", label: "Mensajes", icon: MessagesSquare },
     ];
 
+    // No mostrar la barra de navegación en las páginas de creación/edición de productos
+    if (pathname.includes('/marketplace/vender/crear') || pathname.includes('/marketplace/vender/editar')) {
+        return null;
+    }
+
     return (
         <aside className="hidden md:flex flex-col gap-6 sticky top-6">
             <Button asChild className="w-full font-headline">
@@ -57,6 +62,13 @@ export default function VenderLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const isCreationOrEditPage = pathname.includes('/marketplace/vender/crear') || pathname.includes('/marketplace/vender/editar');
+
+  if (isCreationOrEditPage) {
+    return <main className="col-span-2">{children}</main>;
+  }
+
   return (
     <>
         <VenderNav />
@@ -66,3 +78,5 @@ export default function VenderLayout({
     </>
   );
 }
+
+    

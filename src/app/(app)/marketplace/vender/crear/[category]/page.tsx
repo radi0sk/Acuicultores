@@ -333,7 +333,7 @@ export default function NewItemPage() {
       </div>
 
       {/* Right Column: Preview */}
-      <div className="hidden lg:block lg:col-span-2 bg-secondary/50 p-6 h-screen sticky top-0">
+      <div className="lg:col-span-2 bg-secondary/50 p-6 h-screen sticky top-0">
          <div className="flex items-center justify-center h-full">
             
             {!title && !price && !description && imageUrls.length === 0 ? (
