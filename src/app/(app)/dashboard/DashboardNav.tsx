@@ -89,7 +89,7 @@ export default function DashboardNav() {
                         </Avatar>
                         <div>
                             <CardTitle className="font-headline text-lg">Hola, {getFirstName()}</CardTitle>
-                            <CardDescription className="text-xs font-body">{userProfile.roles?.[0] || 'Miembro'}</CardDescription>
+                            <CardDescription className="text-sm font-body">{userProfile.roles?.[0] || 'Miembro'}</CardDescription>
                         </div>
                     </CardHeader>
                 </Card>
@@ -146,7 +146,7 @@ export default function DashboardNav() {
             key={item.href}
             asChild
             variant={pathname.startsWith(item.href) ? 'secondary' : 'ghost'}
-            className="justify-start font-headline text-base"
+            className="justify-start font-headline text-base md:text-lg"
           >
             <Link href={item.href}>
               <item.icon className="mr-3 h-5 w-5" />
@@ -158,5 +158,3 @@ export default function DashboardNav() {
     </div>
   );
 }
-
-    
