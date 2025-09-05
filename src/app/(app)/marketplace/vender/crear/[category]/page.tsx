@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Globe, MapPin, Package, Truck, Rocket, UploadCloud, X } from "lucide-react";
+import { Globe, MapPin, Package, Truck, Rocket, UploadCloud, X, ArrowLeft } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
@@ -23,6 +23,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Image from 'next/image';
 import { departments, municipalities } from "@/lib/guatemala-data";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import Link from 'next/link';
 
 
 const categoryMap: { [key: string]: string } = {
@@ -162,28 +163,33 @@ export default function NewItemPage() {
 
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_450px] gap-8 items-start">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start min-h-screen">
+       <div className="fixed top-4 left-4 z-20">
+         <Button asChild variant="secondary">
+            <Link href="/marketplace/vender"><ArrowLeft className="mr-2 h-4 w-4"/> Ir a Tus Publicaciones</Link>
+        </Button>
+      </div>
+
       {/* Left Column: Form */}
-      <div className="bg-background rounded-lg p-4 md:p-0">
-        <div className="flex justify-between items-center mb-6">
-            <h1 className="font-headline text-2xl font-bold">{categoryName}</h1>
-            <Button variant="outline" className="font-body">Guardar borrador</Button>
-        </div>
-        
-        <div className="flex items-center gap-3 mb-4 border rounded-lg p-3">
-            <Avatar>
-                <AvatarImage src={user?.photoURL || ''} alt={userProfile?.name || ''} data-ai-hint="person portrait"/>
-                <AvatarFallback>{userProfile?.name?.split(' ').map(n => n[0]).join('') || 'U'}</AvatarFallback>
-            </Avatar>
-            <div>
-                <p className="font-headline font-semibold">{userProfile?.name}</p>
-                <div className="flex items-center gap-1 text-xs text-muted-foreground font-body">
-                    <span>Publicación en Marketplace</span> • <Globe className="h-3 w-3" /> <span>Público</span>
+      <div className="lg:col-span-1 bg-background rounded-lg p-4 md:p-6 overflow-y-auto h-screen no-scrollbar">
+        <div className="space-y-6 pt-12">
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="font-headline text-2xl font-bold">{categoryName}</h1>
+            </div>
+            
+            <div className="flex items-center gap-3 mb-4 border rounded-lg p-3">
+                <Avatar>
+                    <AvatarImage src={user?.photoURL || ''} alt={userProfile?.name || ''} data-ai-hint="person portrait"/>
+                    <AvatarFallback>{userProfile?.name?.split(' ').map(n => n[0]).join('') || 'U'}</AvatarFallback>
+                </Avatar>
+                <div>
+                    <p className="font-headline font-semibold">{userProfile?.name}</p>
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground font-body">
+                        <span>Publicación en Marketplace</span> • <Globe className="h-3 w-3" /> <span>Público</span>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div className="space-y-6">
             <Card>
                 <CardHeader>
                     <CardTitle className="font-headline text-base">Detalles del producto</CardTitle>
@@ -327,11 +333,10 @@ export default function NewItemPage() {
       </div>
 
       {/* Right Column: Preview */}
-      <div className="hidden lg:block sticky top-24">
-         <Label className="font-headline text-muted-foreground">Vista previa</Label>
-         <div className="mt-2 p-6 rounded-xl bg-secondary/50 flex flex-col items-center justify-center text-center">
+      <div className="hidden lg:block lg:col-span-2 bg-secondary/50 p-6 h-screen sticky top-0">
+         <div className="flex items-center justify-center h-full">
             
-            {!title && !price && !description ? (
+            {!title && !price && !description && imageUrls.length === 0 ? (
                 <div className="text-center text-muted-foreground py-12">
                      <p className="font-headline text-lg">Tu anuncio en Marketplace</p>
                      <p className="font-body text-sm">A medida que completes los datos, la vista previa de tu publicación aparecerá aquí.</p>
