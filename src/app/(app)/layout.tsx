@@ -67,13 +67,13 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Handle special full-width pages
+  // Handle special full-width pages like the dashboard and profile completion
   if (user && (pathname === '/auth/completar-perfil' || pathname === '/dashboard')) {
-    return <main className="h-screen">{children}</main>;
+    return <>{children}</>;
   }
   
 
-  // Authenticated user view
+  // Authenticated user view (for all pages except dashboard)
   if (user) {
     return (
      <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -113,6 +113,7 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
                     </SheetTrigger>
                     <SheetContent side="left" className="sm:max-w-xs">
                         <div className="p-6">
+                            {/* We can use a simpler nav for mobile sheets if needed */}
                              <DashboardNav />
                         </div>
                     </SheetContent>
@@ -175,8 +176,8 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
             </div>
         </header>
 
-        <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
-            {children}
+        <main className="flex-1 p-4 sm:px-6 sm:py-0 md:gap-8">
+            <div className="mx-auto max-w-7xl py-6">{children}</div>
         </main>
       </div>
     );
@@ -214,3 +215,5 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <AppLayoutContent>{children}</AppLayoutContent>
   )
 }
+
+    

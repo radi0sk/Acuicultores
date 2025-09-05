@@ -744,307 +744,307 @@ export default function DashboardPage() {
   
   return (
     <>
-    <div className="grid h-full grid-cols-1 gap-6 md:grid-cols-4">
-        {/* Left Column (Nav) */}
-        <aside className="hidden h-full overflow-y-auto no-scrollbar md:col-span-1 md:block">
-            <div className="sticky top-0 p-6">
-                <DashboardNav />
-            </div>
-        </aside>
+      <div className="grid h-screen grid-cols-1 gap-6 md:grid-cols-4">
+          {/* Left Column (Nav) - 25% */}
+          <aside className="hidden h-full overflow-y-auto md:col-span-1 md:block no-scrollbar">
+              <div className="sticky top-0 p-6">
+                  <DashboardNav />
+              </div>
+          </aside>
 
-        {/* Center Column (Forum) */}
-        <main className="h-full overflow-y-auto no-scrollbar p-6 md:col-span-2">
-            <Card>
-                <CardHeader>
-                    <div className="flex items-start gap-4">
-                        <Avatar>
-                            <AvatarImage src={user?.photoURL || undefined} alt={userProfile?.name || ''} data-ai-hint="person portrait" />
-                            <AvatarFallback>{userProfile?.name?.split(' ').map(n => n[0]).join('') || 'U'}</AvatarFallback>
-                        </Avatar>
-                        <div className="w-full">
-                            <Textarea 
-                                placeholder="¿Qué estás pensando sobre acuicultura?"
-                                className="bg-secondary border-0 focus-visible:ring-1 focus-visible:ring-primary"
-                                value={content}
-                                onChange={(e) => setContent(e.target.value)}
-                                disabled={!user || isPublishing}
-                            />
-                             {mediaPreview && (
-                                <div className="mt-2 relative w-fit">
-                                    {mediaType === 'image' ? (
-                                        <Image src={mediaPreview} alt="Preview" width={100} height={100} className="rounded-md object-cover" />
-                                    ) : (
-                                        <video src={mediaPreview} className="rounded-md w-48 h-auto" controls />
-                                    )}
-                                    <Button
-                                        variant="destructive"
-                                        size="icon"
-                                        className="absolute -top-2 -right-2 h-6 w-6"
-                                        onClick={() => { setMediaFile(null); setMediaPreview(null); setMediaType(null); if(fileInputRef.current) fileInputRef.current.value = ""; }}
-                                    >
-                                        <X className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                            )}
-                            {showPollCreator && (
-                                <div className="mt-4 space-y-3">
-                                    <div className="space-y-2">
-                                        {pollOptions.map((option, index) => (
-                                            <div key={index} className="flex items-center gap-2">
-                                                <Input 
-                                                    placeholder={`Opción ${index + 1}`}
-                                                    value={option}
-                                                    onChange={(e) => updatePollOption(index, e.target.value)}
-                                                    maxLength={80}
-                                                />
-                                                {pollOptions.length > 2 && (
-                                                    <Button variant="ghost" size="icon" onClick={() => removePollOption(index)}>
-                                                        <X className="h-4 w-4"/>
-                                                    </Button>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <div className="flex items-center justify-between gap-2">
-                                        {pollOptions.length < 4 && (
-                                            <Button variant="outline" size="sm" onClick={addPollOption}>
-                                                <PlusCircle className="mr-2 h-4 w-4"/>Añadir opción
-                                            </Button>
-                                        )}
-                                        <div className="flex items-center gap-2">
-                                            <Timer className="h-4 w-4 text-muted-foreground" />
-                                            <Select value={pollDuration} onValueChange={setPollDuration}>
-                                                <SelectTrigger className="w-[180px]">
-                                                    <SelectValue placeholder="Duración" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="1">1 hora</SelectItem>
-                                                    <SelectItem value="24">1 día</SelectItem>
-                                                    <SelectItem value="72">3 días</SelectItem>
-                                                    <SelectItem value="168">7 días</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                            <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" accept="image/*,video/*" />
-                            <div className="flex items-center justify-between mt-2">
-                                <div className="flex items-center gap-1">
-                                    <Button variant="ghost" size="icon" disabled={!user || isPublishing} onClick={() => fileInputRef.current?.click()}><ImageIcon className="h-5 w-5 text-muted-foreground"/></Button>
-                                    <Button variant="ghost" size="icon" disabled={!user || isPublishing} onClick={() => fileInputRef.current?.click()}><Video className="h-5 w-5 text-muted-foreground"/></Button>
-                                    <Button variant="ghost" size="icon" disabled={!user || isPublishing} onClick={handlePollToggle} className={cn(showPollCreator && 'bg-primary/20 text-primary')}>
-                                        <BarChartHorizontalBig className="h-5 w-5"/>
-                                    </Button>
-                                    <Button variant="ghost" size="icon" disabled={!user || isPublishing} onClick={() => setIsCourseModalOpen(true)}>
-                                        <GraduationCap className="h-5 w-5 text-muted-foreground"/>
-                                    </Button>
-                                </div>
-                                <Button className="font-headline" onClick={handleCreatePost} disabled={!user || isPublishing || (!content.trim() && !mediaFile && !showPollCreator)}>
-                                    {isPublishing ? 'Publicando...' : 'Publicar'}
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-                </CardHeader>
-            </Card>
-            
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mt-6">
-                <TabsList>
-                    <TabsTrigger value="recent" className="font-headline">Más Recientes</TabsTrigger>
-                    <TabsTrigger value="popular" className="font-headline">Más Populares</TabsTrigger>
-                </TabsList>
-                <TabsContent value={activeTab} className="mt-4 space-y-4">
-                    {loading ? (
-                        <div className="space-y-4">
-                            <Skeleton className="h-48 w-full rounded-lg" />
-                            <Skeleton className="h-48 w-full rounded-lg" />
-                        </div>
-                    ) : posts.length > 0 ? (
-                        posts.map((post) => <PostCard key={post.id} post={post} onCommentClick={handleCommentClick} onPostUpdate={handlePostUpdate} />)
-                    ) : (
-                        <div className="text-center py-16">
-                            <h3 className="font-headline text-xl">No hay publicaciones aquí</h3>
-                            <p className="text-muted-foreground font-body mt-2">¡Sé el primero en compartir algo con la comunidad!</p>
-                        </div>
-                    )}
-                    
-                    <div ref={loadMoreRef} />
+          {/* Center Column (Forum) - 50% */}
+          <main className="h-full overflow-y-auto p-6 md:col-span-2 no-scrollbar">
+              <Card>
+                  <CardHeader>
+                      <div className="flex items-start gap-4">
+                          <Avatar>
+                              <AvatarImage src={user?.photoURL || undefined} alt={userProfile?.name || ''} data-ai-hint="person portrait" />
+                              <AvatarFallback>{userProfile?.name?.split(' ').map(n => n[0]).join('') || 'U'}</AvatarFallback>
+                          </Avatar>
+                          <div className="w-full">
+                              <Textarea 
+                                  placeholder="¿Qué estás pensando sobre acuicultura?"
+                                  className="bg-secondary border-0 focus-visible:ring-1 focus-visible:ring-primary"
+                                  value={content}
+                                  onChange={(e) => setContent(e.target.value)}
+                                  disabled={!user || isPublishing}
+                              />
+                               {mediaPreview && (
+                                  <div className="mt-2 relative w-fit">
+                                      {mediaType === 'image' ? (
+                                          <Image src={mediaPreview} alt="Preview" width={100} height={100} className="rounded-md object-cover" />
+                                      ) : (
+                                          <video src={mediaPreview} className="rounded-md w-48 h-auto" controls />
+                                      )}
+                                      <Button
+                                          variant="destructive"
+                                          size="icon"
+                                          className="absolute -top-2 -right-2 h-6 w-6"
+                                          onClick={() => { setMediaFile(null); setMediaPreview(null); setMediaType(null); if(fileInputRef.current) fileInputRef.current.value = ""; }}
+                                      >
+                                          <X className="h-4 w-4" />
+                                      </Button>
+                                  </div>
+                              )}
+                              {showPollCreator && (
+                                  <div className="mt-4 space-y-3">
+                                      <div className="space-y-2">
+                                          {pollOptions.map((option, index) => (
+                                              <div key={index} className="flex items-center gap-2">
+                                                  <Input 
+                                                      placeholder={`Opción ${index + 1}`}
+                                                      value={option}
+                                                      onChange={(e) => updatePollOption(index, e.target.value)}
+                                                      maxLength={80}
+                                                  />
+                                                  {pollOptions.length > 2 && (
+                                                      <Button variant="ghost" size="icon" onClick={() => removePollOption(index)}>
+                                                          <X className="h-4 w-4"/>
+                                                      </Button>
+                                                  )}
+                                              </div>
+                                          ))}
+                                      </div>
+                                      <div className="flex items-center justify-between gap-2">
+                                          {pollOptions.length < 4 && (
+                                              <Button variant="outline" size="sm" onClick={addPollOption}>
+                                                  <PlusCircle className="mr-2 h-4 w-4"/>Añadir opción
+                                              </Button>
+                                          )}
+                                          <div className="flex items-center gap-2">
+                                              <Timer className="h-4 w-4 text-muted-foreground" />
+                                              <Select value={pollDuration} onValueChange={setPollDuration}>
+                                                  <SelectTrigger className="w-[180px]">
+                                                      <SelectValue placeholder="Duración" />
+                                                  </SelectTrigger>
+                                                  <SelectContent>
+                                                      <SelectItem value="1">1 hora</SelectItem>
+                                                      <SelectItem value="24">1 día</SelectItem>
+                                                      <SelectItem value="72">3 días</SelectItem>
+                                                      <SelectItem value="168">7 días</SelectItem>
+                                                  </SelectContent>
+                                              </Select>
+                                          </div>
+                                      </div>
+                                  </div>
+                              )}
+                              <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" accept="image/*,video/*" />
+                              <div className="flex items-center justify-between mt-2">
+                                  <div className="flex items-center gap-1">
+                                      <Button variant="ghost" size="icon" disabled={!user || isPublishing} onClick={() => fileInputRef.current?.click()}><ImageIcon className="h-5 w-5 text-muted-foreground"/></Button>
+                                      <Button variant="ghost" size="icon" disabled={!user || isPublishing} onClick={() => fileInputRef.current?.click()}><Video className="h-5 w-5 text-muted-foreground"/></Button>
+                                      <Button variant="ghost" size="icon" disabled={!user || isPublishing} onClick={handlePollToggle} className={cn(showPollCreator && 'bg-primary/20 text-primary')}>
+                                          <BarChartHorizontalBig className="h-5 w-5"/>
+                                      </Button>
+                                      <Button variant="ghost" size="icon" disabled={!user || isPublishing} onClick={() => setIsCourseModalOpen(true)}>
+                                          <GraduationCap className="h-5 w-5 text-muted-foreground"/>
+                                      </Button>
+                                  </div>
+                                  <Button className="font-headline" onClick={handleCreatePost} disabled={!user || isPublishing || (!content.trim() && !mediaFile && !showPollCreator)}>
+                                      {isPublishing ? 'Publicando...' : 'Publicar'}
+                                  </Button>
+                              </div>
+                          </div>
+                      </div>
+                  </CardHeader>
+              </Card>
+              
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mt-6">
+                  <TabsList>
+                      <TabsTrigger value="recent" className="font-headline">Más Recientes</TabsTrigger>
+                      <TabsTrigger value="popular" className="font-headline">Más Populares</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value={activeTab} className="mt-4 space-y-4">
+                      {loading ? (
+                          <div className="space-y-4">
+                              <Skeleton className="h-48 w-full rounded-lg" />
+                              <Skeleton className="h-48 w-full rounded-lg" />
+                          </div>
+                      ) : posts.length > 0 ? (
+                          posts.map((post) => <PostCard key={post.id} post={post} onCommentClick={handleCommentClick} onPostUpdate={handlePostUpdate} />)
+                      ) : (
+                          <div className="text-center py-16">
+                              <h3 className="font-headline text-xl">No hay publicaciones aquí</h3>
+                              <p className="text-muted-foreground font-body mt-2">¡Sé el primero en compartir algo con la comunidad!</p>
+                          </div>
+                      )}
+                      
+                      <div ref={loadMoreRef} />
 
-                    {loadingMore && (
-                        <div className="space-y-4">
-                            <Skeleton className="h-48 w-full rounded-lg" />
-                        </div>
-                    )}
-                </TabsContent>
-            </Tabs>
-        </main>
+                      {loadingMore && (
+                          <div className="space-y-4">
+                              <Skeleton className="h-48 w-full rounded-lg" />
+                          </div>
+                      )}
+                  </TabsContent>
+              </Tabs>
+          </main>
 
-        {/* Right Column (Widgets) */}
-        <aside className="hidden h-full overflow-y-auto no-scrollbar md:col-span-1 md:block">
-             <div className="sticky top-0 z-10 bg-background p-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="font-headline">Búsqueda Global</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input placeholder="Buscar en toda la plataforma..." className="pl-9"/>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-            <div className="space-y-6 px-6">
-                <QuickAccess />
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="font-headline">Actividad de la Plataforma</CardTitle>
-                        <CardDescription className="font-body">Nuevas publicaciones y productos en los últimos 6 meses.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="pl-2">
-                        <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={chartData}>
-                            <XAxis
-                            dataKey="month"
-                            stroke="#888888"
-                            fontSize={12}
-                            tickLine={false}
-                            axisLine={false}
-                            />
-                            <YAxis
-                            stroke="#888888"
-                            fontSize={12}
-                            tickLine={false}
-                            axisLine={false}
-                            tickFormatter={(value) => `${value}`}
-                            />
-                            <Bar dataKey="total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                        </BarChart>
-                        </ResponsiveContainer>
-                    </CardContent>
-                </Card>
-            </div>
-        </aside>
-    </div>
+          {/* Right Column (Widgets) - 25% */}
+          <aside className="hidden h-full overflow-y-auto md:col-span-1 md:block no-scrollbar">
+               <div className="sticky top-0 z-10 bg-background p-6">
+                  <Card>
+                      <CardHeader>
+                          <CardTitle className="font-headline">Búsqueda Global</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                          <div className="relative">
+                              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                              <Input placeholder="Buscar en toda la plataforma..." className="pl-9"/>
+                          </div>
+                      </CardContent>
+                  </Card>
+              </div>
+              <div className="space-y-6 px-6">
+                  <QuickAccess />
+                  <Card>
+                      <CardHeader>
+                          <CardTitle className="font-headline">Actividad de la Plataforma</CardTitle>
+                          <CardDescription className="font-body">Nuevas publicaciones y productos en los últimos 6 meses.</CardDescription>
+                      </CardHeader>
+                      <CardContent className="pl-2">
+                          <ResponsiveContainer width="100%" height={300}>
+                          <BarChart data={chartData}>
+                              <XAxis
+                              dataKey="month"
+                              stroke="#888888"
+                              fontSize={12}
+                              tickLine={false}
+                              axisLine={false}
+                              />
+                              <YAxis
+                              stroke="#888888"
+                              fontSize={12}
+                              tickLine={false}
+                              axisLine={false}
+                              tickFormatter={(value) => `${value}`}
+                              />
+                              <Bar dataKey="total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                          </BarChart>
+                          </ResponsiveContainer>
+                      </CardContent>
+                  </Card>
+              </div>
+          </aside>
+      </div>
 
-    <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-3xl h-[90vh] flex flex-col">
-            {selectedPost && (
-                <>
-                    <DialogHeader>
-                        <DialogTitle className="font-headline truncate">
-                            {selectedPost.title || `Publicación de ${selectedPost.authorName}`}
-                        </DialogTitle>
-                    </DialogHeader>
-                    <div className="flex-1 overflow-y-auto -mx-6 px-6">
-                        <Card className="border-0 shadow-none">
-                            <CardHeader>
-                                <div className="flex items-start gap-4">
-                                    <Link href={`/perfil/${selectedPost.authorId}`}>
-                                        <Avatar className="h-12 w-12 border">
-                                            <AvatarImage src={selectedPost.authorAvatar} alt={selectedPost.authorName} />
-                                            <AvatarFallback>{selectedPost.authorName.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                                        </Avatar>
-                                    </Link>
-                                    <div className="flex-1">
-                                        <Link href={`/perfil/${selectedPost.authorId}`} className="font-headline font-semibold text-base group">
-                                            <span className="group-hover:underline">{selectedPost.authorName}</span>
-                                        </Link>
-                                        <p className="text-xs text-muted-foreground font-body">{formatDate(selectedPost.createdAt)}</p>
-                                    </div>
-                                </div>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="font-body text-sm mb-4 whitespace-pre-wrap">{selectedPost.content}</p>
-                                {selectedPost.mediaUrl && (
-                                     <div className="relative aspect-video rounded-lg overflow-hidden border">
-                                        {selectedPost.mediaType === 'image' ? (
-                                            <Image src={selectedPost.mediaUrl} alt={`Imagen para la publicación`} fill className="object-cover" />
-                                        ) : (
-                                             <video src={selectedPost.mediaUrl} className="w-full h-full object-cover" controls />
-                                        )}
-                                    </div>
-                                )}
-                                {selectedPost.poll && <PollComponent post={selectedPost} onVote={(newPollData) => {
-                                    handlePostUpdate(selectedPost.id, { poll: newPollData });
-                                }} />}
-                            </CardContent>
-                        </Card>
-                        <div className="py-6">
-                           <CommentSection 
-                                postId={selectedPost.id} 
-                                publicationAuthor={{id: selectedPost.authorId, name: selectedPost.authorName}} 
-                            />
-                        </div>
-                    </div>
-                </>
-            )}
-        </DialogContent>
-    </Dialog>
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+          <DialogContent className="max-w-3xl h-[90vh] flex flex-col">
+              {selectedPost && (
+                  <>
+                      <DialogHeader>
+                          <DialogTitle className="font-headline truncate">
+                              {selectedPost.title || `Publicación de ${selectedPost.authorName}`}
+                          </DialogTitle>
+                      </DialogHeader>
+                      <div className="flex-1 overflow-y-auto -mx-6 px-6">
+                          <Card className="border-0 shadow-none">
+                              <CardHeader>
+                                  <div className="flex items-start gap-4">
+                                      <Link href={`/perfil/${selectedPost.authorId}`}>
+                                          <Avatar className="h-12 w-12 border">
+                                              <AvatarImage src={selectedPost.authorAvatar} alt={selectedPost.authorName} />
+                                              <AvatarFallback>{selectedPost.authorName.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                                          </Avatar>
+                                      </Link>
+                                      <div className="flex-1">
+                                          <Link href={`/perfil/${selectedPost.authorId}`} className="font-headline font-semibold text-base group">
+                                              <span className="group-hover:underline">{selectedPost.authorName}</span>
+                                          </Link>
+                                          <p className="text-xs text-muted-foreground font-body">{formatDate(selectedPost.createdAt)}</p>
+                                      </div>
+                                  </div>
+                              </CardHeader>
+                              <CardContent>
+                                  <p className="font-body text-sm mb-4 whitespace-pre-wrap">{selectedPost.content}</p>
+                                  {selectedPost.mediaUrl && (
+                                       <div className="relative aspect-video rounded-lg overflow-hidden border">
+                                          {selectedPost.mediaType === 'image' ? (
+                                              <Image src={selectedPost.mediaUrl} alt={`Imagen para la publicación`} fill className="object-cover" />
+                                          ) : (
+                                               <video src={selectedPost.mediaUrl} className="w-full h-full object-cover" controls />
+                                          )}
+                                      </div>
+                                  )}
+                                  {selectedPost.poll && <PollComponent post={selectedPost} onVote={(newPollData) => {
+                                      handlePostUpdate(selectedPost.id, { poll: newPollData });
+                                  }} />}
+                              </CardContent>
+                          </Card>
+                          <div className="py-6">
+                             <CommentSection 
+                                  postId={selectedPost.id} 
+                                  publicationAuthor={{id: selectedPost.authorId, name: selectedPost.authorName}} 
+                              />
+                          </div>
+                      </div>
+                  </>
+              )}
+          </DialogContent>
+      </Dialog>
 
-     <Dialog open={isCourseModalOpen} onOpenChange={setIsCourseModalOpen}>
-        <DialogContent className="max-w-2xl">
-            <DialogHeader>
-                <DialogTitle className="font-headline text-2xl">Publicar un Nuevo Curso</DialogTitle>
-                <DialogDescription className="font-body">
-                    Comparte un curso con la comunidad. Rellena los detalles para que sea fácil de encontrar.
-                </DialogDescription>
-            </DialogHeader>
-            <Form {...courseForm}>
-                <form onSubmit={courseForm.handleSubmit(handleCreateCourse)} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
-                    <FormField control={courseForm.control} name="title" render={({ field }) => (
-                        <FormItem><FormLabel>Título del Curso</FormLabel><FormControl><Input placeholder="Ej: Fundamentos de Acuicultura Sostenible" {...field} /></FormControl><FormMessage /></FormItem>
-                    )}/>
-                     <FormField control={courseForm.control} name="description" render={({ field }) => (
-                        <FormItem><FormLabel>Descripción</FormLabel><FormControl><Textarea placeholder="Describe de qué trata el curso, a quién va dirigido, etc." {...field} /></FormControl><FormMessage /></FormItem>
-                    )}/>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField control={courseForm.control} name="instructor" render={({ field }) => (
-                            <FormItem><FormLabel>Instructor</FormLabel><FormControl><Input placeholder="Nombre del instructor o entidad" {...field} /></FormControl><FormMessage /></FormItem>
-                        )}/>
-                        <FormField control={courseForm.control} name="url" render={({ field }) => (
-                            <FormItem><FormLabel>URL del Curso</FormLabel><FormControl><Input placeholder="https://example.com/curso" {...field} /></FormControl><FormMessage /></FormItem>
-                        )}/>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
-                         <FormField control={courseForm.control} name="price" render={({ field }) => (
-                            <FormItem><FormLabel>Precio (Q)</FormLabel><FormControl><Input type="number" disabled={isFreeWatcher} placeholder="Ej: 250" {...field} /></FormControl><FormMessage /></FormItem>
-                        )}/>
-                        <FormField control={courseForm.control} name="isFree" render={({ field }) => (
-                            <FormItem className="flex flex-row items-center space-x-2 pb-2">
-                                <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-                                <Label className="font-normal">Marcar como Gratis</Label>
-                            </FormItem>
-                        )}/>
-                    </div>
-                    <FormField control={courseForm.control} name="imageUrl" render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Imagen del Curso</FormLabel>
-                            <FormControl>
-                                <div>
-                                <Input type="file" className="hidden" ref={courseImageInputRef} onChange={handleCourseImageUpload} accept="image/*" />
-                                <Button type="button" variant="outline" className="w-full" onClick={() => courseImageInputRef.current?.click()} disabled={isUploadingCourseImage}>
-                                    {isUploadingCourseImage ? "Subiendo..." : "Subir Imagen Promocional"}
-                                </Button>
-                                {field.value && (
-                                    <div className="mt-2 relative w-48 h-27">
-                                        <Image src={field.value} alt="Vista previa del curso" fill className="rounded-md object-cover"/>
-                                    </div>
-                                )}
-                                </div>
-                            </FormControl>
-                             <FormMessage />
-                        </FormItem>
-                    )}/>
-                    <DialogFooter>
-                        <DialogClose asChild><Button type="button" variant="ghost">Cancelar</Button></DialogClose>
-                        <Button type="submit" disabled={isPublishing}>{isPublishing ? "Publicando..." : "Publicar Curso"}</Button>
-                    </DialogFooter>
-                </form>
-            </Form>
-        </DialogContent>
-     </Dialog>
+       <Dialog open={isCourseModalOpen} onOpenChange={setIsCourseModalOpen}>
+          <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                  <DialogTitle className="font-headline text-2xl">Publicar un Nuevo Curso</DialogTitle>
+                  <DialogDescription className="font-body">
+                      Comparte un curso con la comunidad. Rellena los detalles para que sea fácil de encontrar.
+                  </DialogDescription>
+              </DialogHeader>
+              <Form {...courseForm}>
+                  <form onSubmit={courseForm.handleSubmit(handleCreateCourse)} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+                      <FormField control={courseForm.control} name="title" render={({ field }) => (
+                          <FormItem><FormLabel>Título del Curso</FormLabel><FormControl><Input placeholder="Ej: Fundamentos de Acuicultura Sostenible" {...field} /></FormControl><FormMessage /></FormItem>
+                      )}/>
+                       <FormField control={courseForm.control} name="description" render={({ field }) => (
+                          <FormItem><FormLabel>Descripción</FormLabel><FormControl><Textarea placeholder="Describe de qué trata el curso, a quién va dirigido, etc." {...field} /></FormControl><FormMessage /></FormItem>
+                      )}/>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField control={courseForm.control} name="instructor" render={({ field }) => (
+                              <FormItem><FormLabel>Instructor</FormLabel><FormControl><Input placeholder="Nombre del instructor o entidad" {...field} /></FormControl><FormMessage /></FormItem>
+                          )}/>
+                          <FormField control={courseForm.control} name="url" render={({ field }) => (
+                              <FormItem><FormLabel>URL del Curso</FormLabel><FormControl><Input placeholder="https://example.com/curso" {...field} /></FormControl><FormMessage /></FormItem>
+                          )}/>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                           <FormField control={courseForm.control} name="price" render={({ field }) => (
+                              <FormItem><FormLabel>Precio (Q)</FormLabel><FormControl><Input type="number" disabled={isFreeWatcher} placeholder="Ej: 250" {...field} /></FormControl><FormMessage /></FormItem>
+                          )}/>
+                          <FormField control={courseForm.control} name="isFree" render={({ field }) => (
+                              <FormItem className="flex flex-row items-center space-x-2 pb-2">
+                                  <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                                  <Label className="font-normal">Marcar como Gratis</Label>
+                              </FormItem>
+                          )}/>
+                      </div>
+                      <FormField control={courseForm.control} name="imageUrl" render={({ field }) => (
+                          <FormItem>
+                              <FormLabel>Imagen del Curso</FormLabel>
+                              <FormControl>
+                                  <div>
+                                  <Input type="file" className="hidden" ref={courseImageInputRef} onChange={handleCourseImageUpload} accept="image/*" />
+                                  <Button type="button" variant="outline" className="w-full" onClick={() => courseImageInputRef.current?.click()} disabled={isUploadingCourseImage}>
+                                      {isUploadingCourseImage ? "Subiendo..." : "Subir Imagen Promocional"}
+                                  </Button>
+                                  {field.value && (
+                                      <div className="mt-2 relative w-48 h-27">
+                                          <Image src={field.value} alt="Vista previa del curso" fill className="rounded-md object-cover"/>
+                                      </div>
+                                  )}
+                                  </div>
+                              </FormControl>
+                               <FormMessage />
+                          </FormItem>
+                      )}/>
+                      <DialogFooter>
+                          <DialogClose asChild><Button type="button" variant="ghost">Cancelar</Button></DialogClose>
+                          <Button type="submit" disabled={isPublishing}>{isPublishing ? "Publicando..." : "Publicar Curso"}</Button>
+                      </DialogFooter>
+                  </form>
+              </Form>
+          </DialogContent>
+       </Dialog>
     </>
   );
 }

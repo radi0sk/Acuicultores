@@ -11,10 +11,16 @@ import {
   ShoppingCart,
   BookOpen,
   Newspaper,
+  MessageSquare,
+  User,
+  ShieldCheck,
+  LogOut,
+  Settings,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 
 function FishIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -47,11 +53,13 @@ const navItems = [
     { href: "/marketplace", icon: ShoppingCart, label: "Marketplace" },
     { href: "/biblioteca", icon: BookOpen, label: "Biblioteca" },
     { href: "/publicaciones", icon: Newspaper, label: "Publicaciones" },
+    { href: "/mensajes", icon: MessageSquare, label: "Mensajes" },
 ];
 
 export default function DashboardNav() {
-  const { user, userProfile } = useAuth();
+  const { user, userProfile, handleLogout } = useAuth();
   const pathname = usePathname();
+  const isAdmin = user?.uid === 'ovPIwCma4pcnWk9RnCF4GQEhfJm2';
 
   const getFirstName = () => {
     if (userProfile?.name) {
@@ -70,24 +78,66 @@ export default function DashboardNav() {
             <span className="font-headline text-2xl">AcuicultoresGT</span>
         </Link>
       
-      {pathname === '/dashboard' && userProfile && (
-        <Card>
-            <CardHeader className="p-4 flex flex-row items-center gap-4">
-                <Avatar className="h-12 w-12">
-                    <AvatarImage src={user?.photoURL || undefined} alt={userProfile.name} data-ai-hint="person portrait" />
-                    <AvatarFallback>{userProfile.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                </Avatar>
-                <div>
-                    <CardTitle className="font-headline text-lg">Hola, {getFirstName()}</CardTitle>
-                    <CardDescription className="text-xs font-body">Bienvenido/a de nuevo</CardDescription>
-                </div>
-            </CardHeader>
-            <CardFooter className="p-4 pt-0">
-                <Button asChild className="w-full" variant="outline" size="sm">
-                    <Link href={`/perfil/${user?.uid}`}>Ver mi perfil</Link>
-                </Button>
-            </CardFooter>
-        </Card>
+      {userProfile && (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                 <Card className="hover:bg-accent cursor-pointer transition-colors">
+                    <CardHeader className="p-4 flex flex-row items-center gap-4">
+                        <Avatar className="h-12 w-12">
+                            <AvatarImage src={user?.photoURL || undefined} alt={userProfile.name} data-ai-hint="person portrait" />
+                            <AvatarFallback>{userProfile.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                            <CardTitle className="font-headline text-lg">Hola, {getFirstName()}</CardTitle>
+                            <CardDescription className="text-xs font-body">{userProfile.roles?.[0] || 'Miembro'}</CardDescription>
+                        </div>
+                    </CardHeader>
+                </Card>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="start" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none font-headline">{userProfile.name}</p>
+                    <p className="text-xs leading-none text-muted-foreground font-body">
+                        {user?.email}
+                    </p>
+                    </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                    <Link href={`/perfil/${user?.uid}`}>
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Mi Perfil</span>
+                    </Link>
+                </DropdownMenuItem>
+                 <DropdownMenuItem asChild>
+                    <Link href={`/mercado-profesionales/registro`}>
+                        <Briefcase className="mr-2 h-4 w-4" />
+                        <span>Editar Perfil Profesional</span>
+                    </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Configuración</span>
+                </DropdownMenuItem>
+                {isAdmin && (
+                <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                <Link href="/admin/aprobaciones">
+                    <ShieldCheck className="mr-2 h-4 w-4" />
+                    <span>Aprobaciones</span>
+                </Link>
+                </DropdownMenuItem>
+                </>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:bg-red-50 focus:text-red-700">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Cerrar Sesión
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
       )}
       
       <nav className="flex flex-col gap-1">
