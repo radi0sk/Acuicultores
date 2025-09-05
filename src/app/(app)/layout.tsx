@@ -72,7 +72,6 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
     return <main className="h-screen">{children}</main>;
   }
   
-  const isMarketplaceSection = pathname.startsWith('/marketplace');
 
   // Authenticated user view
   if (user) {
@@ -176,15 +175,9 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
             </div>
         </header>
 
-        {isMarketplaceSection ? (
-            <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] lg:grid-cols-[320px_1fr] gap-8 p-6 items-start">
-                {children}
-            </div>
-        ) : (
-            <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
-                    {children}
-            </main>
-        )}
+        <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
+            {children}
+        </main>
       </div>
     );
   }
@@ -221,5 +214,3 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <AppLayoutContent>{children}</AppLayoutContent>
   )
 }
-
-    
