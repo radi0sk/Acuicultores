@@ -15,6 +15,8 @@ import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import NotificationsDropdown from '@/components/NotificationsDropdown';
 import MessagingDropdown from '@/components/MessagingDropdown';
+import DashboardNav from './dashboard/DashboardNav';
+
 
 function FishIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -41,19 +43,18 @@ function FishIcon(props: React.SVGProps<SVGSVGElement>) {
 
 const publicPaths = ['/mercado-profesionales', '/foro', '/biblioteca', '/marketplace', '/publicaciones'];
 
-
-function AppLayoutContent({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  const { user, userProfile, isLoading, activeProfile, setActiveProfile, handleLogout } = useAuth();
-  const isAdmin = user?.uid === 'ovPIwCma4pcnWk9RnCF4GQEhfJm2';
-
-  const navItems = [
+const navItems = [
     { href: "/dashboard", icon: Home, label: "Inicio" },
     { href: "/mercado-profesionales", icon: Briefcase, label: "Profesionales" },
     { href: "/marketplace", icon: ShoppingCart, label: "Marketplace" },
     { href: "/biblioteca", icon: BookOpen, label: "Biblioteca" },
     { href: "/publicaciones", icon: Newspaper, label: "Publicaciones" },
-  ];
+];
+
+function AppLayoutContent({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const { user, userProfile, isLoading, activeProfile, setActiveProfile, handleLogout } = useAuth();
+  const isAdmin = user?.uid === 'ovPIwCma4pcnWk9RnCF4GQEhfJm2';
 
   if (isLoading) {
     return (
@@ -66,148 +67,107 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Hide header on dashboard for the new 3-column layout
-  const showHeader = pathname !== '/dashboard';
+  // Handle special full-width pages
+  if (user && (pathname === '/auth/completar-perfil' || pathname === '/dashboard')) {
+    return <main className="h-screen">{children}</main>;
+  }
 
-  // Authenticated user view
+  // Authenticated user view (2-column layout)
   if (user) {
     return (
-     <div className="flex min-h-screen w-full flex-col">
-        {showHeader && (
-          <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6 z-50">
-            <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
-              <Link
-                href="/dashboard"
-                className="flex items-center gap-2 text-lg font-semibold md:text-base"
-              >
-                <FishIcon className="h-6 w-6 text-primary" />
-                <span className="font-headline text-xl">AcuicultoresGT</span>
-              </Link>
-              {navItems.filter(item => item.href !== '/dashboard').map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "font-headline transition-colors hover:text-foreground",
-                    pathname.startsWith(item.href)
-                      ? "text-foreground"
-                      : "text-muted-foreground"
-                  )}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
-            
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="shrink-0 md:hidden"
-                >
-                  <Menu className="h-5 w-5" />
-                  <span className="sr-only">Toggle navigation menu</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left">
-                <SheetHeader className="hidden">
-                  <SheetTitle>Navigation Menu</SheetTitle>
-                </SheetHeader>
-                <nav className="grid gap-6 text-lg font-medium">
-                  <Link
-                    href="/dashboard"
-                    className="flex items-center gap-2 text-lg font-semibold"
-                  >
-                    <FishIcon className="h-6 w-6 text-primary" />
-                    <span className="font-headline text-xl">AcuicultoresGT</span>
-                  </Link>
-                  {navItems.map((item) => (
-                      <SheetClose asChild key={item.href}>
-                          <Link
-                              href={item.href}
-                              className={cn(
-                                  "flex items-center gap-4 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
-                                  pathname.startsWith(item.href) && "text-primary bg-muted"
-                              )}
-                          >
-                              <item.icon className="h-5 w-5" />
-                              {item.label}
-                          </Link>
-                      </SheetClose>
-                  ))}
-                </nav>
-              </SheetContent>
-            </Sheet>
+     <div className="flex min-h-screen w-full flex-col bg-muted/40">
+       <aside className="fixed inset-y-0 left-0 z-10 hidden w-72 flex-col border-r bg-background sm:flex">
+          <div className="p-6">
+            <DashboardNav />
+          </div>
+       </aside>
+        <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-72">
+            <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+                <Sheet>
+                    <SheetTrigger asChild>
+                        <Button
+                        variant="outline"
+                        size="icon"
+                        className="shrink-0 sm:hidden"
+                        >
+                        <Menu className="h-5 w-5" />
+                        <span className="sr-only">Toggle navigation menu</span>
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent side="left" className="sm:max-w-xs">
+                        <div className="p-6">
+                             <DashboardNav />
+                        </div>
+                    </SheetContent>
+                </Sheet>
+                 <div className="flex w-full items-center justify-end gap-2 md:ml-auto md:gap-4">
+                    <MessagingDropdown />
+                    <NotificationsDropdown />
 
-            <div className="flex w-full items-center justify-end gap-2 md:ml-auto md:gap-4">
-              <MessagingDropdown />
-              <NotificationsDropdown />
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={user.photoURL || undefined} alt={userProfile?.name || ''} data-ai-hint="person portrait" />
-                      <AvatarFallback>{userProfile?.name?.split(' ').map(n => n[0]).join('') || 'U'}</AvatarFallback>
-                    </Avatar>
-                    <span className="sr-only">Toggle user menu</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuLabel className="font-normal p-0">
-                      <Link href={`/perfil/${user.uid}`} className="block rounded-t-md px-2 py-1.5 hover:bg-accent">
-                          <div className="flex flex-col space-y-1">
-                              <p className="text-sm font-medium leading-none font-headline">{userProfile?.name}</p>
-                              <p className="text-xs leading-none text-muted-foreground font-body">
-                                  {user?.email}
-                              </p>
-                          </div>
-                      </Link>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  {isAdmin && (
-                    <>
-                    <DropdownMenuItem asChild>
-                      <Link href="/admin/aprobaciones">
-                        <ShieldCheck className="mr-2 h-4 w-4" />
-                        <span>Aprobaciones</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    </>
-                  )}
-                  <DropdownMenuGroup>
-                      <DropdownMenuLabel className="font-headline text-xs font-normal text-muted-foreground px-2">Cambiar Perfil</DropdownMenuLabel>
-                      {userProfile?.roles?.map(role => (
-                          <DropdownMenuItem key={role} onClick={() => setActiveProfile(role)} className="font-body">
-                              {role}
-                              {activeProfile === role && <Check className="w-4 h-4 ml-auto" />} 
-                          </DropdownMenuItem>
-                      ))}
-                  </DropdownMenuGroup>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="font-body">Configuración</DropdownMenuItem>
-                  <DropdownMenuItem className="font-body">Soporte</DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} className="font-body text-red-600 focus:bg-red-50 focus:text-red-700">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Cerrar Sesión
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </header>
-        )}
-        <main className="flex-1 p-4 sm:p-6">
-          {children}
-        </main>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="rounded-full">
+                            <Avatar className="h-8 w-8">
+                            <AvatarImage src={user.photoURL || undefined} alt={userProfile?.name || ''} data-ai-hint="person portrait" />
+                            <AvatarFallback>{userProfile?.name?.split(' ').map(n => n[0]).join('') || 'U'}</AvatarFallback>
+                            </Avatar>
+                            <span className="sr-only">Toggle user menu</span>
+                        </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-56" align="end" forceMount>
+                        <DropdownMenuLabel className="font-normal p-0">
+                            <Link href={`/perfil/${user.uid}`} className="block rounded-t-md px-2 py-1.5 hover:bg-accent">
+                                <div className="flex flex-col space-y-1">
+                                    <p className="text-sm font-medium leading-none font-headline">{userProfile?.name}</p>
+                                    <p className="text-xs leading-none text-muted-foreground font-body">
+                                        {user?.email}
+                                    </p>
+                                </div>
+                            </Link>
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        {isAdmin && (
+                            <>
+                            <DropdownMenuItem asChild>
+                            <Link href="/admin/aprobaciones">
+                                <ShieldCheck className="mr-2 h-4 w-4" />
+                                <span>Aprobaciones</span>
+                            </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            </>
+                        )}
+                        <DropdownMenuGroup>
+                            <DropdownMenuLabel className="font-headline text-xs font-normal text-muted-foreground px-2">Cambiar Perfil</DropdownMenuLabel>
+                            {userProfile?.roles?.map(role => (
+                                <DropdownMenuItem key={role} onClick={() => setActiveProfile(role)} className="font-body">
+                                    {role}
+                                    {activeProfile === role && <Check className="w-4 h-4 ml-auto" />} 
+                                </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuGroup>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="font-body">Configuración</DropdownMenuItem>
+                        <DropdownMenuItem className="font-body">Soporte</DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={handleLogout} className="font-body text-red-600 focus:bg-red-50 focus:text-red-700">
+                            <LogOut className="mr-2 h-4 w-4" />
+                            Cerrar Sesión
+                        </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    </div>
+            </header>
+            <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
+                 {children}
+            </main>
+       </div>
       </div>
     );
   }
 
   // Public view for non-authenticated users
-  if (!user && publicPaths.includes(pathname)) {
+  if (!user && (publicPaths.some(p => pathname.startsWith(p)) || pathname === '/')) {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <PublicNav />

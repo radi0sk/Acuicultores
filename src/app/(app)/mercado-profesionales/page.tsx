@@ -105,6 +105,18 @@ export default function ProfessionalsPage() {
           <h1 className="font-headline text-3xl font-bold tracking-tight">Mercado de Profesionales</h1>
           <p className="text-muted-foreground font-body">Encuentra el experto que necesitas para llevar tu producción al siguiente nivel.</p>
         </div>
+         <div className="flex items-center gap-2">
+             <div className="relative w-full sm:w-auto">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input id="search" placeholder="Nombre, especialidad..." className="pl-9" />
+            </div>
+             <Button asChild>
+                <Link href="/mercado-profesionales/registro">
+                    {hasProfessionalProfile ? <Edit className="mr-2 h-4 w-4" /> : <UserPlus className="mr-2 h-4 w-4" />}
+                    {hasProfessionalProfile ? "Editar Perfil" : "Registrarse"}
+                </Link>
+             </Button>
+        </div>
       </div>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {loading ? (

@@ -102,7 +102,7 @@ const CoursePostCard = ({ post, onCommentClick }: { post: Post, onCommentClick: 
             <CardHeader className="p-0 relative">
                 {course.imageUrl && (
                     <div className="aspect-video bg-muted">
-                        <Image src={course.imageUrl} alt={course.title} layout="fill" className="object-cover" data-ai-hint="course promotion"/>
+                        <Image src={course.imageUrl} alt={course.title} fill className="object-cover" data-ai-hint="course promotion"/>
                     </div>
                 )}
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent p-4">
@@ -358,7 +358,7 @@ const PostCard = ({ post, onCommentClick, onPostUpdate }: { post: Post, onCommen
                     {post.mediaUrl && (
                          <div className="relative aspect-video rounded-lg overflow-hidden border">
                             {post.mediaType === 'image' ? (
-                                <Image src={post.mediaUrl} alt={`Imagen para la publicación`} layout="fill" className="object-cover" data-ai-hint="forum post image" />
+                                <Image src={post.mediaUrl} alt={`Imagen para la publicación`} fill className="object-cover" data-ai-hint="forum post image" />
                             ) : (
                                 <video src={post.mediaUrl} className="w-full h-full object-cover" controls />
                             )}
@@ -744,14 +744,16 @@ export default function DashboardPage() {
   
   return (
     <>
-    <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start h-[calc(100vh-2rem)]">
+    <div className="grid grid-cols-1 md:grid-cols-[25%_50%_25%] gap-6 h-full">
         {/* Left Column (Nav) */}
-        <aside className="hidden md:block md:col-span-3 h-full overflow-y-auto no-scrollbar">
-            <DashboardNav />
+        <aside className="hidden md:block h-full overflow-y-auto no-scrollbar">
+            <div className="sticky top-0 p-6">
+                <DashboardNav />
+            </div>
         </aside>
 
         {/* Center Column (Forum) */}
-        <main className="col-span-12 md:col-span-6 space-y-6 h-full overflow-y-auto no-scrollbar">
+        <main className="col-span-1 md:col-span-1 space-y-6 h-full overflow-y-auto no-scrollbar p-6">
             <Card>
                 <CardHeader>
                     <div className="flex items-start gap-4">
@@ -879,8 +881,8 @@ export default function DashboardPage() {
         </main>
 
         {/* Right Column (Widgets) */}
-        <aside className="hidden md:block md:col-span-3 h-full overflow-y-auto no-scrollbar">
-             <div className="sticky top-0 z-10 bg-background pb-4">
+        <aside className="hidden md:block h-full overflow-y-auto no-scrollbar">
+             <div className="sticky top-0 p-6 bg-background z-10">
                 <Card>
                     <CardHeader>
                         <CardTitle className="font-headline">Búsqueda Global</CardTitle>
@@ -893,7 +895,7 @@ export default function DashboardPage() {
                     </CardContent>
                 </Card>
             </div>
-            <div className="space-y-6">
+            <div className="space-y-6 px-6">
                 <QuickAccess />
                 <Card>
                     <CardHeader>
@@ -958,7 +960,7 @@ export default function DashboardPage() {
                                 {selectedPost.mediaUrl && (
                                      <div className="relative aspect-video rounded-lg overflow-hidden border">
                                         {selectedPost.mediaType === 'image' ? (
-                                            <Image src={selectedPost.mediaUrl} alt={`Imagen para la publicación`} layout="fill" className="object-cover" />
+                                            <Image src={selectedPost.mediaUrl} alt={`Imagen para la publicación`} fill className="object-cover" />
                                         ) : (
                                              <video src={selectedPost.mediaUrl} className="w-full h-full object-cover" controls />
                                         )}
@@ -1027,7 +1029,7 @@ export default function DashboardPage() {
                                 </Button>
                                 {field.value && (
                                     <div className="mt-2 relative w-48 h-27">
-                                        <Image src={field.value} alt="Vista previa del curso" layout="fill" className="rounded-md object-cover"/>
+                                        <Image src={field.value} alt="Vista previa del curso" fill className="rounded-md object-cover"/>
                                     </div>
                                 )}
                                 </div>
