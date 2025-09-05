@@ -150,7 +150,7 @@ export default function DashboardNav() {
                 variant="ghost"
                 className={cn(
                     "justify-start items-center gap-3 px-4 py-2.5 h-auto rounded-full",
-                    "text-base hover:no-underline",
+                    "text-lg hover:no-underline",
                     isActive 
                         ? "font-semibold text-foreground bg-neutral-100" 
                         : "font-normal text-neutral-700",
@@ -158,7 +158,7 @@ export default function DashboardNav() {
                 )}
               >
                 <Link href={item.href}>
-                  <item.icon className="h-5 w-5" />
+                  <item.icon className="h-6 w-6" />
                   {item.label}
                 </Link>
               </Button>
