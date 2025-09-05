@@ -746,12 +746,12 @@ export default function DashboardPage() {
     <>
     <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start h-[calc(100vh-2rem)]">
         {/* Left Column (Nav) */}
-        <aside className="hidden md:block md:col-span-3 h-full overflow-y-auto">
+        <aside className="hidden md:block md:col-span-3 h-full overflow-y-auto no-scrollbar">
             <DashboardNav />
         </aside>
 
         {/* Center Column (Forum) */}
-        <main className="col-span-12 md:col-span-6 space-y-6 h-full overflow-y-auto">
+        <main className="col-span-12 md:col-span-6 space-y-6 h-full overflow-y-auto no-scrollbar">
             <Card>
                 <CardHeader>
                     <div className="flex items-start gap-4">
@@ -879,7 +879,7 @@ export default function DashboardPage() {
         </main>
 
         {/* Right Column (Widgets) */}
-        <aside className="hidden md:block md:col-span-3 h-full overflow-y-auto">
+        <aside className="hidden md:block md:col-span-3 h-full overflow-y-auto no-scrollbar">
              <div className="sticky top-0 z-10 bg-background pb-4">
                 <Card>
                     <CardHeader>
