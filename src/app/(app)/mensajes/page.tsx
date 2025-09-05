@@ -6,8 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from "@/hooks/useAuth";
 import { collection, query, where, onSnapshot, orderBy, addDoc, serverTimestamp, doc, updateDoc, Timestamp, increment, getDoc } from "firebase/firestore";
-import { clientDb, clientStorage } from "@/lib/firebase/client";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { clientDb } from "@/lib/firebase/client";
 import { v4 as uuidv4 } from 'uuid';
 import { format, formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -51,6 +50,7 @@ interface Message {
     text: string;
     timestamp: Timestamp;
     imageUrl?: string;
+    mediaType?: 'image' | 'video';
 }
 
 interface ServiceRequest {
@@ -198,8 +198,8 @@ export default function MessagesPage() {
     const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
     const [newMessage, setNewMessage] = useState("");
-    const [imageToSend, setImageToSend] = useState<File | null>(null);
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [mediaToSend, setMediaToSend] = useState<File | null>(null);
+    const [mediaPreview, setMediaPreview] = useState<string | null>(null);
 
     const [loadingConversations, setLoadingConversations] = useState(true);
     const [loadingMessages, setLoadingMessages] = useState(false);
@@ -260,12 +260,14 @@ export default function MessagesPage() {
         return () => unsubscribe();
     }, [selectedConversation]);
 
-    const sendMessage = async (text: string, imageUrl: string | null = null) => {
+    const sendMessage = async (text: string, imageUrl: string | null = null, mediaType: 'image' | 'video' | null = null) => {
         if (!selectedConversation || !user || !userProfile) return;
 
         const messageContent = text.startsWith('::product-card::') 
             ? 'Consulta sobre producto'
-            : imageUrl ? '📷 Imagen' : text;
+            : mediaType === 'image' ? '📷 Imagen' 
+            : mediaType === 'video' ? '📹 Video' 
+            : text;
 
         const conversationRef = doc(clientDb, "conversations", selectedConversation.id);
         const messagesRef = collection(conversationRef, "messages");
@@ -276,6 +278,7 @@ export default function MessagesPage() {
             senderId: user.uid,
             text,
             imageUrl,
+            mediaType,
             timestamp: serverTimestamp(),
         });
 
@@ -302,24 +305,42 @@ export default function MessagesPage() {
 
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
-        if ((!newMessage.trim() && !imageToSend) || !selectedConversation || !user) return;
+        if ((!newMessage.trim() && !mediaToSend) || !selectedConversation || !user) return;
         
         const currentMessage = newMessage;
-        const currentImage = imageToSend;
+        const currentMedia = mediaToSend;
         
         setNewMessage("");
-        setImageToSend(null);
-        setImagePreview(null);
+        setMediaToSend(null);
+        setMediaPreview(null);
         if(fileInputRef.current) fileInputRef.current.value = "";
 
-        let finalImageUrl: string | null = null;
-        if (currentImage) {
-            const imageRef = ref(clientStorage, `chat-images/${selectedConversation.id}/${uuidv4()}-${currentImage.name}`);
-            const snapshot = await uploadBytes(imageRef, currentImage);
-            finalImageUrl = await getDownloadURL(snapshot.ref);
+        let finalMediaUrl: string | null = null;
+        let finalMediaType: 'image' | 'video' | null = null;
+        if (currentMedia) {
+             const formData = new FormData();
+            formData.append('file', currentMedia);
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to upload file');
+                }
+
+                const { url, type } = await response.json();
+                finalMediaUrl = url;
+                finalMediaType = type as 'image' | 'video';
+            } catch (error: any) {
+                toast({ variant: 'destructive', title: 'Error de subida', description: error.message });
+                return;
+            }
         }
 
-        await sendMessage(currentMessage, finalImageUrl);
+        await sendMessage(currentMessage, finalMediaUrl, finalMediaType);
     };
     
     const handleAcceptRequest = async (title: string) => {
@@ -359,21 +380,39 @@ export default function MessagesPage() {
     
     const handleAttachmentClick = () => fileInputRef.current?.click();
 
-    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleMediaSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            if (file.size > 5 * 1024 * 1024) {
+            const isImage = file.type.startsWith('image/');
+            const isVideo = file.type.startsWith('video/');
+            
+            if (isImage && file.size > 5 * 1024 * 1024) { // 5MB limit for images
                 toast({ variant: "destructive", title: "Imagen demasiado grande", description: "La imagen no puede pesar más de 5MB." });
                 return;
             }
-            setImageToSend(file);
-            setImagePreview(URL.createObjectURL(file));
+            
+            if (isVideo && file.size > 25 * 1024 * 1024) { // 25MB limit for videos
+                toast({ 
+                    variant: "destructive", 
+                    title: "Video demasiado grande", 
+                    description: "El video no puede pesar más de 25MB. Considera usar un servicio como WeTransfer o Google Drive para videos más largos." 
+                });
+                return;
+            }
+
+            if (!isImage && !isVideo) {
+                 toast({ variant: "destructive", title: "Formato no soportado", description: "Solo se pueden enviar imágenes y videos." });
+                 return;
+            }
+
+            setMediaToSend(file);
+            setMediaPreview(URL.createObjectURL(file));
         }
     };
 
-    const handleRemoveImage = () => {
-        setImageToSend(null);
-        setImagePreview(null);
+    const handleRemoveMedia = () => {
+        setMediaToSend(null);
+        setMediaPreview(null);
         if (fileInputRef.current) fileInputRef.current.value = "";
     };
     
@@ -520,20 +559,26 @@ export default function MessagesPage() {
                                                             />
                                                          ) : (
                                                             <div className={cn(
-                                                                "rounded-lg px-3 py-2 text-sm w-fit",
+                                                                "rounded-lg px-3 py-2 text-sm w-fit max-w-full",
                                                                 msg.senderId === user?.uid ? 'bg-primary text-primary-foreground shadow' : 'bg-background shadow'
                                                             )}>
                                                                 {msg.imageUrl && (
-                                                                    <Link href={msg.imageUrl} target="_blank" rel="noopener noreferrer">
-                                                                        <Image
-                                                                            src={msg.imageUrl}
-                                                                            alt="Imagen adjunta"
-                                                                            width={250}
-                                                                            height={250}
-                                                                            className="rounded-md object-cover max-w-full h-auto cursor-pointer"
-                                                                            data-ai-hint="attached image"
-                                                                        />
-                                                                    </Link>
+                                                                    <div className="max-w-xs">
+                                                                    {msg.mediaType === 'image' ? (
+                                                                        <Link href={msg.imageUrl} target="_blank" rel="noopener noreferrer">
+                                                                            <Image
+                                                                                src={msg.imageUrl}
+                                                                                alt="Imagen adjunta"
+                                                                                width={250}
+                                                                                height={250}
+                                                                                className="rounded-md object-cover max-w-full h-auto cursor-pointer"
+                                                                                data-ai-hint="attached image"
+                                                                            />
+                                                                        </Link>
+                                                                    ) : (
+                                                                        <video src={msg.imageUrl} className="rounded-md max-w-full h-auto" controls />
+                                                                    )}
+                                                                    </div>
                                                                 )}
                                                                 {msg.text && <p className="font-body pt-1 whitespace-pre-wrap">{msg.text}</p>}
                                                             </div>
@@ -553,21 +598,21 @@ export default function MessagesPage() {
 
                     <div className="p-4 border-t bg-background flex-shrink-0">
                         <form onSubmit={handleSendMessage}>
-                            {imagePreview && (
+                            {mediaPreview && (
                                 <div className="relative p-2 border-b mb-2 w-fit">
                                     <Button
                                         variant="destructive"
                                         size="icon"
                                         className="absolute -top-2 -right-2 h-6 w-6 z-10"
-                                        onClick={handleRemoveImage}
+                                        onClick={handleRemoveMedia}
                                     >
                                         <X className="h-4 w-4" />
                                     </Button>
-                                    <Image src={imagePreview} alt="Preview" width={80} height={80} className="h-20 w-auto rounded-md object-cover" />
+                                    <Image src={mediaPreview} alt="Preview" width={80} height={80} className="h-20 w-auto rounded-md object-cover" />
                                 </div>
                             )}
                             <div className="relative flex items-center gap-2">
-                                <input type="file" ref={fileInputRef} onChange={handleImageSelect} accept="image/*" className="hidden"/>
+                                <input type="file" ref={fileInputRef} onChange={handleMediaSelect} accept="image/*,video/*" className="hidden"/>
                                 <Button type="button" size="icon" variant="ghost" onClick={handleAttachmentClick}>
                                     <Paperclip className="h-5 w-5 text-muted-foreground" />
                                     <span className="sr-only">Adjuntar</span>
@@ -650,3 +695,5 @@ export default function MessagesPage() {
     </>
   );
 }
+
+    
