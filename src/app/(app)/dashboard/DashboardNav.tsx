@@ -13,8 +13,6 @@ import {
   BookOpen,
   Newspaper,
 } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 
 function FishIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -69,28 +67,6 @@ export default function DashboardNav() {
             <FishIcon className="h-8 w-8 text-primary" />
             <span className="font-headline text-2xl">AcuicultoresGT</span>
         </Link>
-      <Card>
-          <CardHeader className="flex flex-row items-center gap-4">
-              <Avatar className="h-14 w-14">
-                  <AvatarImage src={user?.photoURL || undefined} alt={userProfile?.name || ''} data-ai-hint="person portrait" />
-                  <AvatarFallback>{userProfile?.name?.split(' ').map(n => n[0]).join('') || 'U'}</AvatarFallback>
-              </Avatar>
-               <div>
-                  <CardTitle className="font-headline text-lg">{userProfile?.name}</CardTitle>
-                  <CardDescription className="font-body text-xs">@{userProfile?.name?.replace(/\s+/g, '').toLowerCase()}</CardDescription>
-              </div>
-          </CardHeader>
-          <CardContent>
-              <p className="text-sm text-muted-foreground font-body line-clamp-3">
-                  Bienvenido/a {getFirstName()}. Este es tu espacio para conectar, compartir y crecer con la comunidad.
-              </p>
-          </CardContent>
-           <CardFooter>
-              <Button asChild className="w-full" variant="secondary">
-                  <Link href={`/perfil/${user?.uid}`}>Ver mi perfil</Link>
-              </Button>
-          </CardFooter>
-      </Card>
       
       <nav className="flex flex-col gap-1">
         {navItems.map((item) => (
