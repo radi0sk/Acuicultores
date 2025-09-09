@@ -35,9 +35,8 @@ interface Conversation {
 }
 
 export default function MessagingDropdown() {
-    const { user } = useAuth();
+    const { user, unreadMessages } = useAuth();
     const [conversations, setConversations] = useState<Conversation[]>([]);
-    const [totalUnread, setTotalUnread] = useState(0);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -50,23 +49,16 @@ export default function MessagingDropdown() {
         const q = query(
             collection(clientDb, "conversations"),
             where("participantIds", "array-contains", user.uid),
-            orderBy("lastUpdatedAt", "desc")
+            orderBy("lastUpdatedAt", "desc"),
+            limit(5)
         );
 
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
-            const allConversations: Conversation[] = [];
+            const recentConversations: Conversation[] = [];
             querySnapshot.forEach((doc) => {
-                allConversations.push({ id: doc.id, ...doc.data() } as Conversation);
+                recentConversations.push({ id: doc.id, ...doc.data() } as Conversation);
             });
-
-            const totalUnreadCount = allConversations.reduce((acc, conv) => {
-                return acc + (conv.unreadCounts?.[user.uid] || 0);
-            }, 0);
-            
-            const recentConversations = allConversations.slice(0, 5);
-
             setConversations(recentConversations);
-            setTotalUnread(totalUnreadCount);
             setLoading(false);
         }, (error) => {
             console.error("Error fetching conversations for dropdown:", error);
@@ -85,9 +77,9 @@ export default function MessagingDropdown() {
             <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="relative rounded-full">
                     <MessagesSquare className="h-5 w-5" />
-                    {totalUnread > 0 && (
+                    {unreadMessages > 0 && (
                         <Badge className="absolute -top-1 -right-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-red-500 p-0 text-xs text-white">
-                           {totalUnread}
+                           {unreadMessages}
                         </Badge>
                     )}
                     <span className="sr-only">Abrir mensajes</span>

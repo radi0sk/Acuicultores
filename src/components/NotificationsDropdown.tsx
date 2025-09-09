@@ -50,10 +50,9 @@ const getNotificationIcon = (type: Notification['type']) => {
 }
 
 export default function NotificationsDropdown() {
-    const { user } = useAuth();
+    const { user, unreadNotifications } = useAuth();
     const router = useRouter();
     const [notifications, setNotifications] = useState<Notification[]>([]);
-    const [unreadCount, setUnreadCount] = useState(0);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -65,25 +64,18 @@ export default function NotificationsDropdown() {
         setLoading(true);
         const q = query(
             collection(clientDb, "notifications"),
-            where("userId", "==", user.uid)
+            where("userId", "==", user.uid),
+            orderBy("createdAt", "desc"),
+            limit(20)
         );
 
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             const allNotifications: Notification[] = [];
-            let unread = 0;
             querySnapshot.forEach((doc) => {
                 const notif = { id: doc.id, ...doc.data() } as Notification
                 allNotifications.push(notif);
-                if (!notif.isRead) {
-                    unread++;
-                }
             });
-
-            // Sort notifications on the client-side
-            allNotifications.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
-            
-            setNotifications(allNotifications.slice(0, 20)); // Limit after sorting
-            setUnreadCount(unread);
+            setNotifications(allNotifications);
             setLoading(false);
         });
 
@@ -109,9 +101,9 @@ export default function NotificationsDropdown() {
             <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="relative rounded-full">
                     <Bell className="h-5 w-5" />
-                    {unreadCount > 0 && (
+                    {unreadNotifications > 0 && (
                         <Badge className="absolute -top-1 -right-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-red-500 p-0 text-xs text-white">
-                           {unreadCount}
+                           {unreadNotifications}
                         </Badge>
                     )}
                     <span className="sr-only">Abrir notificaciones</span>

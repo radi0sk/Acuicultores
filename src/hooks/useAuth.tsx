@@ -3,7 +3,7 @@
 
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { User, onAuthStateChanged, setPersistence, browserLocalPersistence, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp, onSnapshot, collection, query, where } from 'firebase/firestore';
 import { clientAuth, clientDb } from '@/lib/firebase/client';
 import { useRouter, usePathname } from 'next/navigation';
 
@@ -44,6 +44,8 @@ interface AuthContextType {
     isLoading: boolean;
     activeProfile: string;
     setActiveProfile: (profile: string) => void;
+    unreadMessages: number;
+    unreadNotifications: number;
     handleGoogleSignIn: () => Promise<void>;
     handleLogout: () => Promise<void>;
 }
@@ -58,6 +60,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [professionalProfile, setProfessionalProfile] = useState<ProfessionalProfile | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [activeProfile, setActiveProfile] = useState('Productor');
+    
+    // State for notifications and messages count
+    const [unreadNotifications, setUnreadNotifications] = useState(0);
+    const [unreadMessages, setUnreadMessages] = useState(0);
+
     const router = useRouter();
     const pathname = usePathname();
 
@@ -66,7 +73,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             if (firebaseUser) {
                 setUser(firebaseUser);
                 
-                // Set up real-time listener for user profile
                 const userDocRef = doc(clientDb, "users", firebaseUser.uid);
                 const unsubProfile = onSnapshot(userDocRef, async (docSnap) => {
                     let profileData: UserProfile;
@@ -100,22 +106,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     }
                 });
 
-                // Set up real-time listener for professional profile
                 const profProfileRef = doc(clientDb, `users/${firebaseUser.uid}/professionalProfile/data`);
                 const unsubProfProfile = onSnapshot(profProfileRef, (docSnap) => {
-                    if (docSnap.exists()) {
-                        setProfessionalProfile(docSnap.data() as ProfessionalProfile);
-                    } else {
-                        setProfessionalProfile(null);
-                    }
+                    setProfessionalProfile(docSnap.exists() ? docSnap.data() as ProfessionalProfile : null);
+                });
+
+                // Notifications listener
+                const notifsQuery = query(collection(clientDb, "notifications"), where("userId", "==", firebaseUser.uid), where("isRead", "==", false));
+                const unsubNotifications = onSnapshot(notifsQuery, (snapshot) => {
+                    setUnreadNotifications(snapshot.size);
                 });
                 
+                // Messages listener
+                const convosQuery = query(collection(clientDb, "conversations"), where("participantIds", "array-contains", firebaseUser.uid));
+                const unsubMessages = onSnapshot(convosQuery, (snapshot) => {
+                    const totalUnread = snapshot.docs.reduce((acc, doc) => {
+                        const data = doc.data();
+                        return acc + (data.unreadCounts?.[firebaseUser.uid] || 0);
+                    }, 0);
+                    setUnreadMessages(totalUnread);
+                });
+
                 setIsLoading(false);
                 
-                // Return a cleanup function to unsubscribe from listeners on logout
                 return () => {
                     unsubProfile();
                     unsubProfProfile();
+                    unsubNotifications();
+                    unsubMessages();
                 };
 
             } else {
@@ -137,7 +155,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const provider = new GoogleAuthProvider();
         try {
             await signInWithPopup(clientAuth, provider);
-            // The onAuthStateChanged listener will handle the rest
         } catch (error) {
             console.error("Error during Google sign-in:", error);
         }
@@ -148,7 +165,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         router.push('/auth');
     };
 
-    const value = { user, userProfile, professionalProfile, isLoading, activeProfile, setActiveProfile, handleGoogleSignIn, handleLogout };
+    const value = { 
+        user, 
+        userProfile, 
+        professionalProfile, 
+        isLoading, 
+        activeProfile, 
+        setActiveProfile, 
+        unreadMessages,
+        unreadNotifications,
+        handleGoogleSignIn, 
+        handleLogout 
+    };
 
     return (
         <AuthContext.Provider value={value}>

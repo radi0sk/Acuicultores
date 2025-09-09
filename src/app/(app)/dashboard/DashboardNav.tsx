@@ -22,6 +22,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Badge } from '@/components/ui/badge';
 
 
 function FishIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -48,20 +49,20 @@ function FishIcon(props: React.SVGProps<SVGSVGElement>) {
 }
 
 
-const navItems = [
-    { href: "/dashboard", icon: Home, label: "Inicio" },
-    { href: "/mercado-profesionales", icon: Briefcase, label: "Profesionales" },
-    { href: "/marketplace", icon: ShoppingCart, label: "Marketplace" },
-    { href: "/biblioteca", icon: BookOpen, label: "Biblioteca" },
-    { href: "/publicaciones", icon: Newspaper, label: "Publicaciones" },
-    { href: "/mensajes", icon: MessageSquare, label: "Mensajes" },
-    { href: "/notificaciones", icon: Bell, label: "Notificaciones" },
-];
-
 export default function DashboardNav() {
-  const { user, userProfile, handleLogout } = useAuth();
+  const { user, userProfile, handleLogout, unreadMessages, unreadNotifications } = useAuth();
   const pathname = usePathname();
   const isAdmin = user?.uid === 'ovPIwCma4pcnWk9RnCF4GQEhfJm2';
+
+  const navItems = [
+      { href: "/dashboard", icon: Home, label: "Inicio", badgeCount: 0 },
+      { href: "/mercado-profesionales", icon: Briefcase, label: "Profesionales", badgeCount: 0 },
+      { href: "/marketplace", icon: ShoppingCart, label: "Marketplace", badgeCount: 0 },
+      { href: "/biblioteca", icon: BookOpen, label: "Biblioteca", badgeCount: 0 },
+      { href: "/publicaciones", icon: Newspaper, label: "Publicaciones", badgeCount: 0 },
+      { href: "/mensajes", icon: MessageSquare, label: "Mensajes", badgeCount: unreadMessages },
+      { href: "/notificaciones", icon: Bell, label: "Notificaciones", badgeCount: unreadNotifications },
+  ];
 
   const getFirstName = () => {
     if (userProfile?.name) {
@@ -151,7 +152,7 @@ export default function DashboardNav() {
                 asChild
                 variant="ghost"
                 className={cn(
-                    "justify-start items-center gap-3 px-4 py-2.5 h-auto rounded-full",
+                    "justify-start items-center gap-3 px-4 py-2.5 h-auto rounded-full relative",
                     "text-2xl hover:no-underline",
                     isActive 
                         ? "font-semibold text-foreground bg-neutral-100" 
@@ -162,6 +163,11 @@ export default function DashboardNav() {
                 <Link href={item.href}>
                   <item.icon className="h-8 w-8" />
                   {item.label}
+                  {item.badgeCount > 0 && (
+                      <Badge className="absolute right-4 top-1/2 -translate-y-1/2 h-6 w-6 justify-center rounded-full p-0 text-xs">
+                          {item.badgeCount}
+                      </Badge>
+                  )}
                 </Link>
               </Button>
             )
