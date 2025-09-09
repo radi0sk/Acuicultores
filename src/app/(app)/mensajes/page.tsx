@@ -4,6 +4,7 @@
 import { useState, useEffect, useRef } from "react";
 import Image from 'next/image';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useAuth } from "@/hooks/useAuth";
 import { collection, query, where, onSnapshot, orderBy, addDoc, serverTimestamp, doc, updateDoc, Timestamp, increment, getDoc } from "firebase/firestore";
 import { clientDb } from "@/lib/firebase/client";
@@ -194,6 +195,7 @@ const ServiceRequestCard = ({ text, onAccept, onReject, onDetails, isRecipient }
 export default function MessagesPage() {
     const { user, userProfile } = useAuth();
     const { toast } = useToast();
+    const searchParams = useSearchParams();
     const [conversations, setConversations] = useState<Conversation[]>([]);
     const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
@@ -229,13 +231,23 @@ export default function MessagesPage() {
             });
             setConversations(userConversations);
             setLoadingConversations(false);
+            
+            // Check for convId in URL params after conversations load
+            const convIdFromUrl = searchParams.get('convId');
+            if (convIdFromUrl && userConversations.length > 0) {
+                const conversationToSelect = userConversations.find(c => c.id === convIdFromUrl);
+                if (conversationToSelect) {
+                    handleSelectConversation(conversationToSelect);
+                }
+            }
+
         }, (error) => {
             console.error("Firestore Error:", error);
             setLoadingConversations(false);
         });
 
         return () => unsubscribe();
-    }, [user]);
+    }, [user, searchParams]);
 
     useEffect(() => {
         if (!selectedConversation) return;
@@ -294,7 +306,7 @@ export default function MessagesPage() {
             type: 'new_message',
             title: `Nuevo mensaje de ${userProfile.name}`,
             body: messageContent,
-            link: `/mensajes`,
+            link: `/mensajes?convId=${selectedConversation.id}`,
             isRead: false,
             createdAt: serverTimestamp(),
             senderId: user.uid,
@@ -695,5 +707,3 @@ export default function MessagesPage() {
     </>
   );
 }
-
-    

@@ -4,13 +4,14 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { clientDb } from "@/lib/firebase/client";
-import { collection, query, orderBy, addDoc, serverTimestamp, doc, updateDoc, increment, arrayUnion, arrayRemove, runTransaction, Timestamp, limit, startAfter, getDocs, QueryDocumentSnapshot, DocumentData } from "firebase/firestore";
+import { collection, query, orderBy, addDoc, serverTimestamp, doc, updateDoc, increment, arrayUnion, arrayRemove, runTransaction, Timestamp, limit, startAfter, getDocs, QueryDocumentSnapshot, DocumentData, getDoc } from "firebase/firestore";
 import Link from 'next/link';
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useSearchParams } from 'next/navigation';
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -392,6 +393,7 @@ export default function DashboardPage() {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const courseImageInputRef = useRef<HTMLInputElement>(null);
+  const searchParams = useSearchParams();
 
   const [content, setContent] = useState("");
   const [mediaFile, setMediaFile] = useState<File | null>(null);
@@ -430,6 +432,22 @@ export default function DashboardPage() {
     ];
     setChartData(data);
   }, []);
+
+  useEffect(() => {
+    const postIdFromUrl = searchParams.get('postId');
+    if (postIdFromUrl) {
+      const fetchPostAndOpenModal = async () => {
+        const postRef = doc(clientDb, 'forumPosts', postIdFromUrl);
+        const postSnap = await getDoc(postRef);
+        if (postSnap.exists()) {
+          const postData = { id: postSnap.id, ...postSnap.data() } as Post;
+          setSelectedPost(postData);
+          setIsModalOpen(true);
+        }
+      };
+      fetchPostAndOpenModal();
+    }
+  }, [searchParams]);
   
   const observer = useRef<IntersectionObserver>();
   const loadMoreRef = useCallback((node: HTMLDivElement) => {

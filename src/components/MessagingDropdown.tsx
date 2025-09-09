@@ -107,7 +107,7 @@ export default function MessagingDropdown() {
                         conversations.map(conv => {
                             const otherParticipant = getOtherParticipant(conv);
                             return (
-                                <Link key={conv.id} href="/mensajes" className="block">
+                                <Link key={conv.id} href={`/mensajes?convId=${conv.id}`} className="block">
                                     <DropdownMenuItem className="p-2 cursor-pointer h-auto">
                                         <div className="flex items-start gap-3">
                                             <Avatar className="h-9 w-9">

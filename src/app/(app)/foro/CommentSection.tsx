@@ -74,7 +74,7 @@ const CommentForm = ({ postId, postAuthor, parentId = null, onCommentPosted, par
                     type: isReply ? 'new_reply' : 'new_comment',
                     title: isReply ? `${userProfile.name} respondió a tu comentario` : `${userProfile.name} comentó tu publicación`,
                     body: text,
-                    link: `/foro`, // Link to forum, modal will handle display
+                    link: `/dashboard?postId=${postId}`, // Link to dashboard with post ID to open modal
                     isRead: false,
                     createdAt: serverTimestamp(),
                     senderId: user.uid,
