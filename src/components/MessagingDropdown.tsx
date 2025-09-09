@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react";
 import Link from 'next/link';
 import { useAuth } from "@/hooks/useAuth";
-import { collection, query, where, onSnapshot, Timestamp, orderBy } from "firebase/firestore";
+import { collection, query, where, onSnapshot, Timestamp, orderBy, limit } from "firebase/firestore";
 import { clientDb } from "@/lib/firebase/client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";

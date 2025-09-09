@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from "@/hooks/useAuth";
-import { collection, query, where, onSnapshot, Timestamp, updateDoc, doc, orderBy } from "firebase/firestore";
+import { collection, query, where, onSnapshot, Timestamp, updateDoc, doc, orderBy, limit } from "firebase/firestore";
 import { clientDb } from "@/lib/firebase/client";
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
