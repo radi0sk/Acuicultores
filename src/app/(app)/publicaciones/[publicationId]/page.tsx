@@ -73,7 +73,7 @@ export default function PublicationDetailPage() {
                 setLikes(pubData.likes || 0);
                 setHasLiked(user ? pubData.likedBy?.includes(user.uid) || false : false);
 
-                // If current user is the author, fetch pending suggestions
+                // Conditional logic: If the current user is the author, fetch pending suggestions.
                 if (user && user.uid === data.authorId) {
                     const suggestionsQuery = query(
                         collection(clientDb, 'publicationSuggestions'),
@@ -81,6 +81,7 @@ export default function PublicationDetailPage() {
                         where('status', '==', 'pending')
                     );
                     
+                    // This onSnapshot is nested intentionally to only run for the author.
                     onSnapshot(suggestionsQuery, (snapshot) => {
                         const pendingSuggestions: Suggestion[] = [];
                         snapshot.forEach((doc) => {
@@ -150,7 +151,7 @@ export default function PublicationDetailPage() {
 
     const formattedDate = publication.createdAt ? format(publication.createdAt.toDate(), "d 'de' MMMM 'de' yyyy", { locale: es }) : '';
     
-    // Normalize content to always be an array of blocks
+    // Normalize content to always be an array of blocks for consistent rendering
     const contentBlocks = typeof publication.content === 'string' 
         ? [{ type: 'text', value: publication.content }] 
         : publication.content || [];
@@ -167,7 +168,7 @@ export default function PublicationDetailPage() {
                     {publication.tags?.map(tag => (
                         <Badge key={tag} variant="secondary" className="font-body">{tag}</Badge>
                     ))}
-                        {publication.isOpenInvestigation && (
+                    {publication.isOpenInvestigation && (
                         <Badge variant="outline" className="flex items-center gap-1 border-yellow-400 bg-yellow-50 text-yellow-800">
                             <BrainCircuit className="h-3 w-3"/>
                             Investigación Abierta
@@ -211,11 +212,11 @@ export default function PublicationDetailPage() {
             
             <Separator />
             
-            <div className="prose-lg max-w-none font-body space-y-6">
+            <div className="prose max-w-none font-body text-foreground text-lg leading-relaxed space-y-6">
                 {contentBlocks.map((block, index) => {
                     switch (block.type) {
                         case 'text':
-                            return <p key={index} className="whitespace-pre-wrap text-lg leading-relaxed">{block.value}</p>;
+                            return <p key={index} className="whitespace-pre-wrap">{block.value}</p>;
                         case 'image':
                             return (
                                 <figure key={index} className="w-full my-6">
@@ -264,6 +265,7 @@ export default function PublicationDetailPage() {
             </div>
 
 
+             {/* Conditional Card for the author to see pending suggestions */}
              {user?.uid === publication.authorId && suggestions.length > 0 && (
                 <Card>
                     <CardHeader>
@@ -303,3 +305,5 @@ export default function PublicationDetailPage() {
         </article>
     );
 }
+
+    
