@@ -121,9 +121,15 @@ const CertificationCard = ({ cert, onPreview }: { cert: any, onPreview: (url: st
     const thumbnailUrl = isPdf ? cert.attachmentUrl.replace(/\.pdf($|\?)/i, '.jpg') : cert.attachmentUrl;
 
     const handlePreviewClick = () => {
-        const previewUrl = isPdf ? cert.attachmentUrl.replace(/\.pdf($|\?)/i, '.jpg') : cert.attachmentUrl;
+        const previewUrl = cert.attachmentUrl;
         if (!previewUrl) return;
-        onPreview(previewUrl, cert.name);
+        
+        // Si es PDF, abrirlo directamente. Si es imagen, usar el modal.
+        if(isPdf) {
+            window.open(previewUrl, '_blank');
+        } else {
+            onPreview(previewUrl, cert.name);
+        }
     }
     
     return (
@@ -136,15 +142,9 @@ const CertificationCard = ({ cert, onPreview }: { cert: any, onPreview: (url: st
             </div>
             {cert.attachmentUrl && (
                 <div className="flex items-center gap-2">
-                     <Image
-                        src={thumbnailUrl}
-                        alt={`Miniatura de ${cert.name}`}
-                        width={40}
-                        height={56}
-                        className="w-10 h-14 object-cover rounded border bg-muted"
-                        data-ai-hint="document preview"
-                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                    />
+                     <div className="w-10 h-14 flex items-center justify-center border rounded bg-muted">
+                        <FileText className="h-6 w-6 text-muted-foreground"/>
+                     </div>
                     <Button variant="outline" size="icon" className="h-8 w-8 transition-opacity opacity-0 group-hover:opacity-100" onClick={handlePreviewClick}>
                        <Eye className="h-4 w-4"/>
                     </Button>
@@ -506,7 +506,7 @@ ${requestDescription}
                     </p>
                 )}
                 <div className="flex flex-wrap gap-2 pt-2">
-                    {professionalProfile?.availability?.map(avail => <Badge key={avail} variant="secondary">{avail}</Badge>)}
+                    {professionalProfile?.availability?.map(avail => <Badge key={avail} variant="secondary">{avail.replace(/_/g, ' ')}</Badge>)}
                 </div>
                 </div>
             </div>

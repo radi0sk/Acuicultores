@@ -1,4 +1,3 @@
-
 "use client"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -24,6 +23,7 @@ interface ProfessionalProfile {
     location: string;
     experiences: { role: string; company: string; }[];
     isColegiado?: boolean;
+    availability?: string[];
 }
 
 const ProfessionalCardSkeleton = () => (
@@ -56,8 +56,9 @@ const ProfessionalCardSkeleton = () => (
 
 export default function ProfessionalsPage() {
   const { user, professionalProfile: currentUserProfessionalProfile } = useAuth();
-  const [professionals, setProfessionals] = useState<ProfessionalProfile[]>([]);
+  const [allProfessionals, setAllProfessionals] = useState<ProfessionalProfile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     setLoading(true);
@@ -85,16 +86,34 @@ export default function ProfessionalsPage() {
                         location: data.location,
                         experiences: data.experiences || [],
                         isColegiado: data.isColegiado || false,
+                        availability: data.availability || [],
                     });
                 }
             }
         }
-        setProfessionals(fetchedProfessionals);
+        setAllProfessionals(fetchedProfessionals);
         setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
+  
+  const filteredProfessionals = useMemo(() => {
+    const lowercasedQuery = searchQuery.toLowerCase();
+    if (!lowercasedQuery) return allProfessionals;
+
+    return allProfessionals.filter(prof => {
+        const availabilityText = (prof.availability || []).join(' ').toLowerCase();
+
+        return (
+            prof.name.toLowerCase().includes(lowercasedQuery) ||
+            prof.professionalType.toLowerCase().includes(lowercasedQuery) ||
+            prof.specialization.toLowerCase().includes(lowercasedQuery) ||
+            prof.location.toLowerCase().includes(lowercasedQuery) ||
+            availabilityText.includes(lowercasedQuery)
+        );
+    });
+  }, [allProfessionals, searchQuery]);
 
   const hasProfessionalProfile = currentUserProfessionalProfile && Object.keys(currentUserProfessionalProfile).length > 0;
 
@@ -108,7 +127,13 @@ export default function ProfessionalsPage() {
          <div className="flex items-center gap-2">
              <div className="relative w-full sm:w-auto">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input id="search" placeholder="Nombre, especialidad..." className="pl-9" />
+                <Input 
+                    id="search" 
+                    placeholder="Nombre, especialidad, servicio..." 
+                    className="pl-9" 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
             </div>
              <Button asChild>
                 <Link href="/mercado-profesionales/registro">
@@ -121,8 +146,8 @@ export default function ProfessionalsPage() {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {loading ? (
             Array.from({ length: 6 }).map((_, index) => <ProfessionalCardSkeleton key={index} />)
-        ) : professionals.length > 0 ? (
-            professionals.map((prof) => (
+        ) : filteredProfessionals.length > 0 ? (
+            filteredProfessionals.map((prof) => (
             <Card key={prof.id} className="flex flex-col hover:border-primary transition-colors">
                 <CardHeader className="p-6 pb-0">
                   <Link href={`/perfil/${prof.id}`} className="flex flex-row items-start gap-4 group">
