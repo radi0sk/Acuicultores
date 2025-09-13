@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -80,6 +81,7 @@ export default function PublicationDetailPage() {
                     const suggestionsQuery = query(
                         collection(clientDb, 'publicationSuggestions'),
                         where('originalPublicationId', '==', publicationId),
+                        where('publicationAuthorId', '==', user.uid),
                         where('status', '==', 'pending')
                     );
                     

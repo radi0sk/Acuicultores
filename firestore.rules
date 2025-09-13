@@ -1,9 +1,10 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Helper functions
+
+    // --- Helper Functions ---
     function isUserAuthenticated() {
       return request.auth != null;
     }
@@ -12,101 +13,100 @@ service cloud.firestore {
       return request.auth.uid == userId;
     }
 
-    function isAdmin() {
-      return request.auth.uid == 'ovPIwCma4pcnWk9RnCF4GQEhfJm2';
-    }
-
-    // Collection: users
+    // --- User Profiles ---
     match /users/{userId} {
       allow read: if isUserAuthenticated();
       allow create: if isOwner(userId);
       allow update: if isOwner(userId);
+      allow delete: if false;
 
-      // Subcollection: professionalProfile
+      // Professional Sub-profile
       match /professionalProfile/{profileId} {
         allow read: if isUserAuthenticated();
         allow create, update: if isOwner(userId);
       }
     }
     
-    // Rule for collection group 'professionalProfile'
+    // --- Collection Group for Professional Profiles ---
     match /{path=**}/professionalProfile/{profileId} {
-        allow list, read: if isUserAuthenticated();
+      allow list: if isUserAuthenticated();
     }
+    
 
-    // Collection: products
+    // --- Products (Marketplace) ---
     match /products/{productId} {
-      allow read: if isUserAuthenticated();
-      allow create: if isOwner(request.resource.data.sellerId);
-      allow update, delete: if isOwner(resource.data.sellerId);
-
-      // Allow any authenticated user to save or view a product
-      allow update: if isUserAuthenticated() && 
-                      request.resource.data.diff(resource.data).affectedKeys()
-                      .hasAny(['saveCount', 'savedBy', 'viewCount']);
+      allow read: if true;
+      allow list: if true;
+      allow create: if isUserAuthenticated() && request.resource.data.sellerId == request.auth.uid;
+      allow update: if isUserAuthenticated() && isOwner(resource.data.sellerId);
+      allow delete: if isUserAuthenticated() && isOwner(resource.data.sellerId);
     }
 
-    // Collection: forumPosts
+    // --- Forum Posts ---
     match /forumPosts/{postId} {
-      allow read, list: if isUserAuthenticated();
-      allow create: if isOwner(request.resource.data.authorId);
-      allow update: if isUserAuthenticated(); // Simplified for likes, comments, polls
-      allow delete: if isOwner(resource.data.authorId);
+      allow read: if true;
+      allow list: if true;
+      allow create: if isUserAuthenticated();
+      allow update: if isUserAuthenticated();
 
-      // Subcollection: comments
+      // Comments on Forum Posts
       match /comments/{commentId} {
-        allow read, list, create: if isUserAuthenticated();
-        allow update, delete: if isOwner(resource.data.authorId);
+        allow read: if true;
+        allow list: if true;
+        allow create: if isUserAuthenticated();
       }
     }
-    
-    // Collection: publications
+
+    // --- Publications (Knowledge Center & News) ---
     match /publications/{publicationId} {
-      allow read, list: if isUserAuthenticated();
-      allow create: if isOwner(request.resource.data.authorId);
-      allow update: if isOwner(resource.data.authorId) || 
-                      (isUserAuthenticated() && 
-                       request.resource.data.diff(resource.data).affectedKeys().hasAny(['likes', 'likedBy']));
-      allow delete: if isOwner(resource.data.authorId);
+      allow read: if resource.data.status == 'published' || (isUserAuthenticated() && isOwner(resource.data.authorId));
+      allow list: if isUserAuthenticated();
+      allow create: if isUserAuthenticated();
+      // Allow update for owners, and for liking/commenting
+      allow update: if isUserAuthenticated() && 
+                      (isOwner(resource.data.authorId) || request.resource.data.diff(resource.data).hasAny(['likes', 'likedBy', 'commentsCount']));
 
-      // Subcollection: comments
+      // Comments on Publications
       match /comments/{commentId} {
-        allow read, list, create: if isUserAuthenticated();
-        allow update, delete: if isOwner(resource.data.authorId);
-      }
-    }
-
-    // Collection: publicationSuggestions
-    match /publicationSuggestions/{suggestionId} {
-        allow create: if isOwner(request.resource.data.suggesterId);
-        allow read: if isOwner(resource.data.suggesterId) || isOwner(resource.data.publicationAuthorId);
-        allow update: if isOwner(resource.data.publicationAuthorId); // Only the original author can approve/reject
-    }
-
-    // Collection: libraryContributions
-    match /libraryContributions/{contributionId} {
-        allow read: if isUserAuthenticated();
-        allow list: if isUserAuthenticated() || isAdmin();
+        allow read: if true;
+        allow list: if true;
         allow create: if isUserAuthenticated();
-        allow update: if isAdmin();
+      }
     }
     
-    // Collection: conversations
-    match /conversations/{conversationId} {
-      allow read, create, update: if request.auth.uid in resource.data.participantIds;
-      allow list: if isUserAuthenticated() && request.auth.uid in request.query.where.participantIds;
-
-      // Subcollection: messages
-      match /messages/{messageId} {
-        allow read, create: if request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participantIds;
-      }
+    // --- Publication Suggestions Collection ---
+    match /publicationSuggestions/{suggestionId} {
+      allow get: if isUserAuthenticated() && (isOwner(resource.data.publicationAuthorId) || isOwner(resource.data.suggesterId));
+      allow list: if isUserAuthenticated() && request.query.publicationAuthorId == request.auth.uid;
+      allow create: if isUserAuthenticated() && request.resource.data.suggesterId == request.auth.uid;
+      allow update: if isUserAuthenticated() && isOwner(resource.data.publicationAuthorId);
     }
 
-    // Collection: notifications
+    // --- Notifications ---
     match /notifications/{notificationId} {
-        allow read, update: if isOwner(resource.data.userId);
-        allow list: if isUserAuthenticated() && request.query.where.userId == request.auth.uid;
-        allow create: if isUserAuthenticated();
+      allow read, update: if isUserAuthenticated() && isOwner(resource.data.userId);
+      allow list: if isUserAuthenticated() && request.query.userId == request.auth.uid;
+      allow create: if isUserAuthenticated(); // Can be created by server or other users
+    }
+    
+    // --- Conversations (Messaging) ---
+    match /conversations/{conversationId} {
+        allow read, create: if isUserAuthenticated() && request.auth.uid in resource.data.participantIds;
+        allow update: if isUserAuthenticated() && request.auth.uid in resource.data.participantIds;
+        
+        match /messages/{messageId} {
+            allow read, create: if isUserAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participantIds;
+        }
+    }
+
+    // --- Library Contributions ---
+    match /libraryContributions/{contributionId} {
+      // Admin can do anything
+      allow read, write: if request.auth.uid == 'ovPIwCma4pcnWk9RnCF4GQEhfJm2';
+      // Authenticated users can create
+      allow create: if isUserAuthenticated() && request.resource.data.contributorId == request.auth.uid;
+      // Authenticated users can read approved documents
+      allow list, get: if isUserAuthenticated() && resource.data.status == 'approved';
     }
   }
 }
