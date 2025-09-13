@@ -191,6 +191,26 @@ export default function PublicationDetailPage() {
                 </div>
             </header>
 
+            {user?.uid === publication.authorId && suggestions.length > 0 && (
+                 <Card className="bg-primary/10 border-primary/20">
+                    <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                         <div className="flex items-start gap-3">
+                            <GitMerge className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
+                            <div>
+                                <CardTitle className="font-headline text-lg">Tienes {suggestions.length} propuesta{suggestions.length > 1 ? 's' : ''} de cambio</CardTitle>
+                                <CardContent className="p-0 pt-1 text-sm text-muted-foreground font-body">Revisa las sugerencias de la comunidad para mejorar tu publicación.</CardContent>
+                            </div>
+                        </div>
+                        <Button asChild>
+                            <Link href={`/publicaciones/revision/${suggestions[0].id}`}>
+                                <Edit className="mr-2 h-4 w-4" />
+                                Revisar Sugerencias
+                            </Link>
+                        </Button>
+                    </CardHeader>
+                </Card>
+            )}
+
             {publication.isOpenInvestigation && user && user.uid !== publication.authorId && (
                 <div className="bg-secondary/50 rounded-lg p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div className="flex items-start gap-3">
@@ -262,42 +282,6 @@ export default function PublicationDetailPage() {
                     <span className="font-semibold">{likes}</span>
                 </Button>
             </div>
-
-
-             {/* Conditional Card for the author to see pending suggestions */}
-             {user?.uid === publication.authorId && suggestions.length > 0 && (
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="font-headline flex items-center gap-2">
-                            <GitMerge className="h-6 w-6" />
-                            Propuestas de Cambio Pendientes
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-4">
-                            {suggestions.map((suggestion) => (
-                                <div key={suggestion.id} className="flex items-center justify-between p-3 bg-secondary/50 rounded-lg">
-                                    <div className="flex items-center gap-3">
-                                        <Avatar>
-                                            <AvatarImage src={suggestion.suggesterAvatar} alt={suggestion.suggesterName} data-ai-hint="person portrait"/>
-                                            <AvatarFallback>{suggestion.suggesterName?.split(' ').map(n=>n[0]).join('')}</AvatarFallback>
-                                        </Avatar>
-                                        <div>
-                                            <p className="font-headline font-semibold">{suggestion.suggesterName}</p>
-                                            <p className="text-xs font-body text-muted-foreground">
-                                                Envió una propuesta
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <Button asChild>
-                                        <Link href={`/publicaciones/revision/${suggestion.id}`}>Revisar Cambios</Link>
-                                    </Button>
-                                </div>
-                            ))}
-                        </div>
-                    </CardContent>
-                </Card>
-             )}
 
             <CommentSection publicationId={publicationId} publicationAuthor={publicationAuthor} />
             
