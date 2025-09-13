@@ -62,10 +62,12 @@ export default function PublicationDetailPage() {
     useEffect(() => {
         if (!publicationId) return;
 
+        console.log(`[PublicationDetail] Iniciando escucha para publicación con ID: ${publicationId}`);
         const docRef = doc(clientDb, 'publications', publicationId);
 
         const unsubscribePublication = onSnapshot(docRef, (docSnap) => {
              if (docSnap.exists()) {
+                console.log("[PublicationDetail] Datos de publicación recibidos:", docSnap.data());
                 const data = docSnap.data() as Omit<PublicationData, 'id'>;
                 const pubData = { id: docSnap.id, ...data };
                 setPublication(pubData);
@@ -74,6 +76,7 @@ export default function PublicationDetailPage() {
 
                 // Conditional logic: If the current user is the author, fetch pending suggestions.
                 if (user && user.uid === data.authorId) {
+                    console.log("[PublicationDetail] Usuario es autor. Buscando sugerencias pendientes...");
                     const suggestionsQuery = query(
                         collection(clientDb, 'publicationSuggestions'),
                         where('originalPublicationId', '==', publicationId),
@@ -82,27 +85,38 @@ export default function PublicationDetailPage() {
                     
                     // This onSnapshot is nested intentionally to only run for the author.
                     onSnapshot(suggestionsQuery, (snapshot) => {
+                        console.log(`[PublicationDetail] Recibidas ${snapshot.size} sugerencias.`);
                         const pendingSuggestions: Suggestion[] = [];
                         snapshot.forEach((doc) => {
                             pendingSuggestions.push({ id: doc.id, ...doc.data() } as Suggestion);
                         });
                         setSuggestions(pendingSuggestions);
+                    }, (error) => {
+                        console.error("[PublicationDetail] Error al obtener sugerencias:", error);
                     });
                 }
             } else {
-                console.log('No such document!');
+                console.log('[PublicationDetail] La publicación no existe.');
                 router.push('/publicaciones');
             }
             setLoading(false);
+        }, (error) => {
+            console.error("[PublicationDetail] Error en el listener de la publicación:", error);
+            setLoading(false);
         });
 
-        return () => unsubscribePublication();
+        return () => {
+            console.log("[PublicationDetail] Limpiando listener de publicación.");
+            unsubscribePublication();
+        };
     }, [publicationId, router, user]);
 
     const handleLike = async () => {
         if (!user || !publication || isLiking) return;
 
         setIsLiking(true);
+        const action = hasLiked ? 'quitando like' : 'dando like';
+        console.log(`[PublicationDetail] Usuario ${user.uid} ${action} a la publicación ${publication.id}`);
         const publicationRef = doc(clientDb, "publications", publication.id);
         
         try {
@@ -117,8 +131,9 @@ export default function PublicationDetailPage() {
                     likedBy: arrayUnion(user.uid)
                 });
             }
+            console.log("[PublicationDetail] Acción de like completada exitosamente.");
         } catch (error) {
-            console.error("Error updating likes:", error);
+            console.error("[PublicationDetail] Error al actualizar likes:", error);
         } finally {
             setIsLiking(false);
         }

@@ -75,6 +75,7 @@ export default function ReviewSuggestionPage() {
     useEffect(() => {
         if (suggestionId && user) {
             const fetchSuggestionAndPublication = async () => {
+                console.log(`[ReviewSuggestion] Iniciando carga para sugerencia ID: ${suggestionId}`);
                 setLoading(true);
                 try {
                     const suggestionRef = doc(clientDb, 'publicationSuggestions', suggestionId);
@@ -87,6 +88,7 @@ export default function ReviewSuggestionPage() {
                     }
 
                     const suggestionData = { id: suggestionSnap.id, ...suggestionSnap.data() } as SuggestionData;
+                    console.log("[ReviewSuggestion] Datos de sugerencia recibidos:", suggestionData);
                     setSuggestion(suggestionData);
 
                     const publicationRef = doc(clientDb, 'publications', suggestionData.originalPublicationId);
@@ -99,13 +101,15 @@ export default function ReviewSuggestionPage() {
                     }
                     
                     const pubData = { id: publicationSnap.id, ...publicationSnap.data() } as PublicationData;
+                    console.log("[ReviewSuggestion] Datos de publicación original recibidos:", pubData);
                     setPublication(pubData);
 
                 } catch (err) {
-                    console.error(err);
+                    console.error("[ReviewSuggestion] Error al cargar datos:", err);
                     toast({ variant: 'destructive', title: 'Error', description: 'No se pudieron cargar los datos.' });
                 } finally {
                     setLoading(false);
+                    console.log("[ReviewSuggestion] Carga finalizada.");
                 }
             };
             fetchSuggestionAndPublication();
@@ -116,6 +120,7 @@ export default function ReviewSuggestionPage() {
         if (!publication || !suggestion) return;
         
         setIsProcessing(true);
+        console.log(`[ReviewSuggestion] Procesando decisión: ${decision} para sugerencia ID: ${suggestion.id}`);
         try {
             const batch = writeBatch(clientDb);
             const suggestionRef = doc(clientDb, 'publicationSuggestions', suggestionId);
@@ -134,10 +139,11 @@ export default function ReviewSuggestionPage() {
                 await batch.commit();
                 toast({ title: 'Sugerencia Rechazada', description: 'La sugerencia ha sido marcada como rechazada.' });
             }
+            console.log("[ReviewSuggestion] Decisión procesada exitosamente. Redirigiendo...");
             router.push(`/publicaciones/${publication.id}`);
 
         } catch (error) {
-            console.error(error);
+            console.error("[ReviewSuggestion] Error al procesar decisión:", error);
             toast({ variant: 'destructive', title: 'Error', description: 'No se pudo procesar la decisión.' });
             setIsProcessing(false);
         }
@@ -159,8 +165,8 @@ export default function ReviewSuggestionPage() {
         return <p>No se pudieron cargar los datos.</p>;
     }
 
-    const originalText = publication.content.filter(b => b.type === 'text').map(b => b.value).join('\n\n');
-    const suggestedText = suggestion.suggestedContent.filter(b => b.type === 'text').map(b => b.value).join('\n\n');
+    const originalText = publication.content.filter(b => b.type === 'text').map(b => b.value).join('\\n\\n');
+    const suggestedText = suggestion.suggestedContent.filter(b => b.type === 'text').map(b => b.value).join('\\n\\n');
 
     return (
         <div className="max-w-6xl mx-auto py-8 px-4 space-y-6">
