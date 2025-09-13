@@ -118,15 +118,11 @@
       ]
     },
     {
-      "collectionGroup": "conversations",
-      "queryScope": "COLLECTION",
+      "collectionGroup": "professionalProfile",
+      "queryScope": "COLLECTION_GROUP",
       "fields": [
         {
-          "fieldPath": "participantIds",
-          "arrayConfig": "CONTAINS"
-        },
-        {
-          "fieldPath": "lastUpdatedAt",
+          "fieldPath": "isProfessional",
           "order": "ASCENDING"
         }
       ]
