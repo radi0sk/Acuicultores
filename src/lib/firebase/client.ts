@@ -9,10 +9,8 @@ import { firebaseConfig } from './client-config'; // Import from the new config 
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
 const clientAuth = getAuth(app);
-// Firestore is initialized with experimentalForceLongPolling to avoid network errors.
-const clientDb = initializeFirestore(app, {
-  experimentalForceLongPolling: true,
-});
+// Firestore is initialized in a standard way, without forcing long-polling.
+const clientDb = getFirestore(app);
 const clientStorage = getStorage(app);
 
 export { app, clientAuth, clientDb, clientStorage };
