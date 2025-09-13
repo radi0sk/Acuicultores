@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuGroup, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuGroup, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { LayoutDashboard, Briefcase, MessagesSquare, BookOpen, Newspaper, LogOut, Check, ShoppingCart, Menu, Heart, ThumbsUp, ShieldCheck, Home } from 'lucide-react';
 import React from 'react';
 import PublicNav from '@/components/PublicNav';
@@ -120,8 +120,8 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
                           </Button>
                       </SheetTrigger>
                       <SheetContent side="left" className="sm:max-w-xs">
-                          <SheetHeader className="hidden">
-                            <SheetTitle>Menú de Navegación</SheetTitle>
+                          <SheetHeader>
+                            <SheetTitle className="sr-only">Menú de Navegación</SheetTitle>
                           </SheetHeader>
                           <div className="p-6">
                               <DashboardNav />
@@ -179,8 +179,8 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
                       </Button>
                   </SheetTrigger>
                   <SheetContent side="left" className="sm:max-w-xs">
-                      <SheetHeader className="hidden">
-                        <SheetTitle>Menú de Navegación</SheetTitle>
+                      <SheetHeader>
+                        <SheetTitle className="sr-only">Menú de Navegación</SheetTitle>
                       </SheetHeader>
                       <div className="p-6">
                            <DashboardNav />
