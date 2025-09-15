@@ -102,7 +102,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                         if (pathname !== '/auth/completar-perfil') {
                             router.push('/auth/completar-perfil');
                         }
-                    } else if (pathname === '/auth' || pathname === '/auth/completar-perfil' || pathname === '/') {
+                    } else if (pathname === '/auth' || pathname === '/') {
                         router.push('/dashboard');
                     }
                 });
@@ -181,7 +181,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     return (
         <AuthContext.Provider value={value}>
-            {children}
+            {!isLoading && children}
         </AuthContext.Provider>
     );
 };

@@ -41,8 +41,7 @@ function FishIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-const publicPaths = ['/auth'];
-const dashboardLayoutPaths = ['/dashboard', '/mercado-profesionales', '/biblioteca', '/publicaciones', '/notificaciones'];
+const dashboardLayoutPaths = ['/dashboard', '/mercado-profesionales', '/biblioteca', '/publicaciones', '/notificaciones', '/mensajes', '/admin'];
 
 const navItems = [
     { href: "/dashboard", icon: Home, label: "Inicio" },
@@ -73,7 +72,7 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
     return (
      <div className="flex flex-col min-h-screen bg-background">
        {pathname !== '/auth' && <PublicNav />}
-       {children}
+       <main className="flex-1">{children}</main>
        {pathname !== '/auth' && <PublicFooter />}
      </div>
    );
@@ -130,7 +129,7 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
     )
   }
 
-  // Default layout for authenticated users (e.g., /marketplace, /mensajes)
+  // Default layout for authenticated users (e.g., /marketplace)
   return (
    <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 sm:px-6">
