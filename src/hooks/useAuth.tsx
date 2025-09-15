@@ -97,11 +97,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     if(profileData.roles && profileData.roles.length > 0) {
                         setActiveProfile(profileData.roles[0]);
                     }
+                    
                     if (!profileData.profileComplete) {
                         if (pathname !== '/auth/completar-perfil') {
                             router.push('/auth/completar-perfil');
                         }
-                    } else if (pathname === '/auth' || pathname === '/auth/completar-perfil') {
+                    } else if (pathname === '/auth' || pathname === '/auth/completar-perfil' || pathname === '/') {
                         router.push('/dashboard');
                     }
                 });

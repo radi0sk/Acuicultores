@@ -68,26 +68,15 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Handle unauthenticated users or public pages
+  // AuthProvider now handles redirects. If no user, it's a public page.
   if (!user) {
-     if (publicPaths.some(p => pathname.startsWith(p)) || pathname === '/') {
-       return (
-        <div className="flex flex-col min-h-screen bg-background">
-          {pathname !== '/auth' && <PublicNav />}
-          {children}
-          {pathname !== '/auth' && <PublicFooter />}
-        </div>
-      );
-    }
-    // This will be caught by the AuthProvider's redirect logic, but it's good to have a fallback.
-    return ( 
-      <div className="flex h-screen w-full items-center justify-center">
-          <div className="flex flex-col items-center gap-4">
-              <FishIcon className="h-12 w-12 animate-pulse text-primary" />
-              <p className="text-muted-foreground font-body">Cargando...</p>
-          </div>
-      </div>
-    )
+    return (
+     <div className="flex flex-col min-h-screen bg-background">
+       {pathname !== '/auth' && <PublicNav />}
+       {children}
+       {pathname !== '/auth' && <PublicFooter />}
+     </div>
+   );
   }
   
   // Handle special full-width page for profile completion
