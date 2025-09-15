@@ -42,20 +42,8 @@ function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
 
 export default function AuthPage() {
   const { isLoading, handleGoogleSignIn } = useAuth();
-  const [isSigningIn, setIsSigningIn] = useState(false);
-
-  const onSignInClick = async () => {
-    setIsSigningIn(true);
-    try {
-      await handleGoogleSignIn();
-    } catch (error) {
-      console.error("Sign in failed", error);
-    } finally {
-      setIsSigningIn(false);
-    }
-  }
-
-  if (isLoading && !isSigningIn) {
+  
+  if (isLoading) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
           <div className="flex flex-col items-center gap-4">
@@ -80,15 +68,11 @@ export default function AuthPage() {
         </CardHeader>
         
         <CardContent>
-            <Button variant="outline" className="w-full font-headline" onClick={onSignInClick} disabled={isSigningIn || isLoading}>
-              {isSigningIn ? (
-                'Iniciando sesión...'
-              ) : (
-                <>
-                  <GoogleIcon className="mr-2 h-4 w-4" />
-                  Continuar con Google
-                </>
-              )}
+            <Button variant="outline" className="w-full font-headline" onClick={handleGoogleSignIn} disabled={isLoading}>
+              <>
+                <GoogleIcon className="mr-2 h-4 w-4" />
+                Continuar con Google
+              </>
             </Button>
         </CardContent>
       </Card>
