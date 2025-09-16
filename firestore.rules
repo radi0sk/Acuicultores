@@ -4,7 +4,6 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // --- Helper Functions ---
     function isUserAuthenticated() {
       return request.auth != null;
     }
@@ -13,68 +12,54 @@ service cloud.firestore {
       return request.auth.uid == userId;
     }
 
-    // --- User Profiles ---
+    // Users Collection
     match /users/{userId} {
       allow read: if isUserAuthenticated();
       allow create: if isOwner(userId);
-      allow update: if isOwner(userId);
-      allow delete: if false;
+      allow update: if isUserAuthenticated() && isOwner(userId);
 
-      // Professional Sub-profile
+      // Professional Profile Subcollection
       match /professionalProfile/{profileId} {
         allow read: if isUserAuthenticated();
         allow create, update: if isOwner(userId);
       }
     }
-    
-    // --- Collection Group for Professional Profiles ---
-    match /{path=**}/professionalProfile/{profileId} {
-      allow list: if isUserAuthenticated();
-    }
-    
 
-    // --- Products (Marketplace) ---
+    // Products Collection (Marketplace)
     match /products/{productId} {
-      allow read: if true;
-      allow list: if true;
+      allow read: if isUserAuthenticated();
       allow create: if isUserAuthenticated() && request.resource.data.sellerId == request.auth.uid;
       allow update: if isUserAuthenticated() && isOwner(resource.data.sellerId);
       allow delete: if isUserAuthenticated() && isOwner(resource.data.sellerId);
     }
-
-    // --- Forum Posts ---
+    
+    // Forum Posts Collection
     match /forumPosts/{postId} {
-      allow read: if true;
-      allow list: if true;
-      allow create: if isUserAuthenticated();
-      allow update: if isUserAuthenticated();
+      allow read: if isUserAuthenticated();
+      allow create: if isUserAuthenticated() && request.resource.data.authorId == request.auth.uid;
+      allow update: if isUserAuthenticated(); // Allows updates for likes, polls, etc.
 
-      // Comments on Forum Posts
+      // Comments Subcollection for Forum
       match /comments/{commentId} {
-        allow read: if true;
-        allow list: if true;
-        allow create: if isUserAuthenticated();
+          allow read, create: if isUserAuthenticated();
+          allow update, delete: if isUserAuthenticated() && isOwner(resource.data.authorId);
       }
     }
 
-    // --- Publications (Knowledge Center & News) ---
+    // Publications Collection
     match /publications/{publicationId} {
       allow read: if resource.data.status == 'published' || (isUserAuthenticated() && isOwner(resource.data.authorId));
-      allow list: if isUserAuthenticated();
-      allow create: if isUserAuthenticated();
-      // Allow update for owners, and for liking/commenting
-      allow update: if isUserAuthenticated() && 
-                      (isOwner(resource.data.authorId) || request.resource.data.diff(resource.data).hasAny(['likes', 'likedBy', 'commentsCount']));
+      allow create: if isUserAuthenticated() && request.resource.data.authorId == request.auth.uid;
+      allow update: if isUserAuthenticated() && isOwner(resource.data.authorId);
 
-      // Comments on Publications
+      // Comments Subcollection for Publications
       match /comments/{commentId} {
-        allow read: if true;
-        allow list: if true;
-        allow create: if isUserAuthenticated();
+        allow read, create: if isUserAuthenticated();
+        allow update, delete: if isUserAuthenticated() && isOwner(resource.data.authorId);
       }
     }
-    
-    // --- Publication Suggestions Collection ---
+
+    // Publication Suggestions Collection
     match /publicationSuggestions/{suggestionId} {
       allow get: if isUserAuthenticated() && (isOwner(resource.data.publicationAuthorId) || isOwner(resource.data.suggesterId));
       allow list: if isUserAuthenticated() && request.query.publicationAuthorId == request.auth.uid;
@@ -82,31 +67,26 @@ service cloud.firestore {
       allow update: if isUserAuthenticated() && isOwner(resource.data.publicationAuthorId);
     }
 
-    // --- Notifications ---
-    match /notifications/{notificationId} {
-      allow read, update: if isUserAuthenticated() && isOwner(resource.data.userId);
-      allow list: if isUserAuthenticated() && request.query.userId == request.auth.uid;
-      allow create: if isUserAuthenticated(); // Can be created by server or other users
-    }
-    
-    // --- Conversations (Messaging) ---
-    match /conversations/{conversationId} {
-        allow read, create: if isUserAuthenticated() && request.auth.uid in resource.data.participantIds;
-        allow update: if isUserAuthenticated() && request.auth.uid in resource.data.participantIds;
-        
-        match /messages/{messageId} {
-            allow read, create: if isUserAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participantIds;
-        }
+    // Library Contributions Collection
+    match /libraryContributions/{contributionId} {
+        allow read: if resource.data.status == 'approved' || (isUserAuthenticated() && request.auth.uid == 'ovPIwCma4pcnWk9RnCF4GQEhfJm2');
+        allow create: if isUserAuthenticated();
+        allow update: if isUserAuthenticated() && request.auth.uid == 'ovPIwCma4pcnWk9RnCF4GQEhfJm2';
     }
 
-    // --- Library Contributions ---
-    match /libraryContributions/{contributionId} {
-      // Admin can do anything
-      allow read, write: if request.auth.uid == 'ovPIwCma4pcnWk9RnCF4GQEhfJm2';
-      // Authenticated users can create
-      allow create: if isUserAuthenticated() && request.resource.data.contributorId == request.auth.uid;
-      // Authenticated users can read approved documents
-      allow list, get: if isUserAuthenticated() && resource.data.status == 'approved';
+    // Conversations & Messages
+    match /conversations/{conversationId} {
+      allow read, create, update: if isUserAuthenticated() && request.auth.uid in resource.data.participantIds;
+
+      match /messages/{messageId} {
+        allow read, create: if isUserAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participantIds;
+      }
+    }
+
+    // Notifications
+    match /notifications/{notificationId} {
+      allow read, update: if isUserAuthenticated() && isOwner(resource.data.userId);
+      allow create: if isUserAuthenticated();
     }
   }
 }
